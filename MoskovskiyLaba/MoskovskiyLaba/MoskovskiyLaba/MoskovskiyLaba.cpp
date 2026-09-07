@@ -17,16 +17,38 @@ struct CS {
 };
 
 void launching(){
-    cout << "App menu. Enter a number to execute a command:\n";
-    cout << "1 - Add pipe\n2 - Add Compression station\n3 - View all items\n4 - Edit pipe\n5 - Edit Compression station\n6 - Save\n7 - Download\n0 - Exit\n";
+    cout << "App menu:\n";
+    cout << "1 - Add pipe\n2 - Add Compression station\n3 - View all items\n4 - Edit pipe\n5 - Edit Compression station\n6 - Save\n7 - Download\n0 - Exit\nEnter a number to execute a command: ";
 
+}
+
+void Add_pipe() {
+    Pipe p;
+    cout << "Enter the pipeline Name: ";
+    cin >> p.Pipe_Name;
+    cout << "Enter the pipeline lenght in km: ";
+    cin >> p.Pipe_lenght;
+    cout << "Enter the pipeline diametr in mm: ";
+    cin >> p.Pipe_diameter;
+    cout << "Select the pipline status, where 1 - working, 0 - broken: ";
+    cin >> p.Pipe_attribute;
 }
 
 
 int main()
 {
+    while (true) {
+       launching();
+       int user_choise;
+       cin >> user_choise;
+       if (user_choise == 1) {
+           Add_pipe();
+       }
+       if (user_choise == 0) {
+           return 0;
+       }
 
-    launching();
+    }
 }
 
 
