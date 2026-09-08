@@ -34,6 +34,22 @@ void Add_pipe() {
     cin >> p.Pipe_attribute;
 }
 
+void Add_compression() {
+    CS s;
+    cout << "Enter the Compression station Name: ";
+    cin >> s.CS_name;
+    cout << "Enter the pipeline lenght in km: ";
+    cin >> s.workshops;
+    cout << "Enter the pipeline diametr in mm: ";
+    cin >> s.active_workshops;
+    cout << "Select the pipline status, where 1 - working, 0 - broken: ";
+    cin >> s.station_class;
+}
+
+void view_all() {
+    
+}
+
 
 int main()
 {
@@ -41,11 +57,14 @@ int main()
        launching();
        int user_choise;
        cin >> user_choise;
+       if (user_choise == 0) {
+           return 0;
+       }
        if (user_choise == 1) {
            Add_pipe();
        }
-       if (user_choise == 0) {
-           return 0;
+       if (user_choise == 2) {
+           Add_compression();
        }
 
     }
