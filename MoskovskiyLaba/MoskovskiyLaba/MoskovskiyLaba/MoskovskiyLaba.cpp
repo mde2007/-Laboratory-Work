@@ -106,17 +106,17 @@ void edit_cs(bool is_cs, CS& s) {
         cout << "\n";
     }
 }
-void add_to_file(Pipe& p, CS& s, bool is_pipe, bool is_cs){
-    ifstream fin;
-    fin.open("output.txt", ios::in);
-    if (fin.is_open()) {
+void save_to_file(Pipe& p, CS& s, bool is_pipe, bool is_cs){
+    ofstream fout;
+    fout.open("output.txt", ios::out);
+    if (fout.is_open()) {
         if (is_pipe) {
-            fin >> p.Pipe_diameter >> p.Pipe_lenght >> p.Pipe_attribute;
+            fout << p.Pipe_Name << endl << p.Pipe_diameter << endl << p.Pipe_lenght << endl << p.Pipe_attribute << endl;
         }
         if (is_cs) {
-            fin >> s.workshops >> s.active_workshops >> s.station_class;
+            fout << s.CS_name << endl << s.workshops << endl << s.active_workshops << endl << s.station_class << endl;
         }
-        fin.close();
+        fout.close();
     }
 }
 
@@ -152,6 +152,7 @@ int main()
             edit_cs(cs_create, s);
             break;
         case 6:
+            save_to_file(p, s, pipe_create, cs_create);
             break;
         }
 
