@@ -1,12 +1,13 @@
 ﻿#include <iostream>
+#include <fstream>
 using namespace std;
 
 
 struct Pipe {
-    string Pipe_Name; 
-    double Pipe_lenght; 
-    float Pipe_diameter; 
-    bool Pipe_attribute; 
+    string Pipe_Name;
+    double Pipe_lenght;
+    float Pipe_diameter;
+    bool Pipe_attribute;
 };
 
 struct CS {
@@ -16,14 +17,14 @@ struct CS {
     char station_class;
 };
 
-void launching(){
+void launching() {
     cout << "App menu:\n";
     cout << "1 - Add pipe\n2 - Add Compression station\n3 - View all items\n4 - Edit pipe\n5 - Edit Compression station\n6 - Save\n7 - Download\n0 - Exit\nEnter a number to execute a command: ";
 
 }
 
-void Add_pipe() {
-    Pipe p;
+void Add_pipe(Pipe& p) {
+    cout << "\n";
     cout << "Enter the pipeline Name: ";
     cin >> p.Pipe_Name;
     cout << "Enter the pipeline lenght in km: ";
@@ -32,40 +33,127 @@ void Add_pipe() {
     cin >> p.Pipe_diameter;
     cout << "Select the pipline status, where 1 - working, 0 - broken: ";
     cin >> p.Pipe_attribute;
+    cout << "\n";
 }
 
-void Add_compression() {
-    CS s;
+void Add_compression(CS& s) {
+    cout << "\n";
     cout << "Enter the Compression station Name: ";
     cin >> s.CS_name;
-    cout << "Enter the pipeline lenght in km: ";
+    cout << "Enter the Compression station lenght in km: ";
     cin >> s.workshops;
-    cout << "Enter the pipeline diametr in mm: ";
+    cout << "Enter the Compression station diametr in mm: ";
     cin >> s.active_workshops;
-    cout << "Select the pipline status, where 1 - working, 0 - broken: ";
+    cout << "Select the Compression station, where 1 - working, 0 - broken: ";
     cin >> s.station_class;
+    cout << "\n";
 }
 
-void view_all() {
-    
+void view_all(bool is_pipe, bool is_cs, Pipe& p, CS& s) {
+    if (!is_pipe && !is_cs) {
+        cout << "\n";
+        cout << "You haven't created a single component" << endl << "\n";
+    }
+    else {
+        if (is_pipe) {
+            cout << "\n";
+            cout << "The pipeline:" << endl;
+            cout << "The pipeline Name: " << p.Pipe_Name << endl;
+            cout << "The pipeline lenght in km: " << p.Pipe_lenght << endl;
+            cout << "The pipeline diametr in mm: " << p.Pipe_diameter << endl;
+            cout << "The pipline status, where 1 - working, 0 - broken: " << p.Pipe_attribute << endl << "\n";
+        }
+        else {
+            cout << "\n";
+            cout << "The pipeline:" << endl;
+            cout << "You haven't created a single pipe." << endl << "\n";
+        }
+        if (is_cs) {
+            cout << "The Compression:" << endl;
+            cout << "The Compression station Name: " << s.CS_name << endl;
+            cout << "The pipeline lenght in km: " << s.workshops << endl;
+            cout << "The pipeline diametr in mm: " << s.active_workshops << endl;
+            cout << "The pipline status, where 1 - working, 0 - broken: " << s.station_class << endl << "\n";
+        }
+        else {
+            cout << "The Compression:" << endl;
+            cout << "You haven't created a single cs." << endl << "\n";
+        }
+    }
+}
+
+void edit_pipe(bool is_pipe, Pipe& p) {
+    if (!is_pipe) {
+        cout << "\n";
+        cout << "You haven't created a single pipe." << endl;
+    }
+    else {
+        cout << "\n";
+        cout << "Select the pipline status, where 1 - working, 0 - broken: ";
+        cin >> p.Pipe_attribute;
+        cout << "\n";
+    }
+}
+
+void edit_cs(bool is_cs, CS& s) {
+    if (!is_cs) {
+        cout << "\n";
+        cout << "You haven't created a single Compression station \n";
+    }
+    else {
+        cout << "Select the Compression station status, where 1 - working, 0 - broken: ";
+        cin >> s.station_class;
+        cout << "\n";
+    }
+}
+void add_to_file(Pipe& p, CS& s, bool is_pipe, bool is_cs){
+    ifstream fin;
+    fin.open("output.txt", ios::in);
+    if (fin.is_open()) {
+        if (is_pipe) {
+            fin >> p.Pipe_diameter >> p.Pipe_lenght >> p.Pipe_attribute;
+        }
+        if (is_cs) {
+            fin >> s.workshops >> s.active_workshops >> s.station_class;
+        }
+        fin.close();
+    }
 }
 
 
 int main()
 {
+    Pipe p;
+    CS s;
+    bool pipe_create = false;
+    bool cs_create = false;
     while (true) {
-       launching();
-       int user_choise;
-       cin >> user_choise;
-       if (user_choise == 0) {
-           return 0;
-       }
-       if (user_choise == 1) {
-           Add_pipe();
-       }
-       if (user_choise == 2) {
-           Add_compression();
-       }
+        launching();
+        int user_choise;
+        cin >> user_choise;
+        switch (user_choise) {
+        case 0:
+            return 0;
+        case 1:
+            Add_pipe(p);
+            pipe_create = true;
+            break;
+        case 2:
+            Add_compression(s);
+            cs_create = true;
+            break;
+        case 3:
+            view_all(pipe_create, cs_create, p, s);
+            break;
+        case 4:
+            edit_pipe(pipe_create, p);
+            break;
+        case 5:
+            edit_cs(cs_create, s);
+            break;
+        case 6:
+            break;
+        }
 
     }
 }
