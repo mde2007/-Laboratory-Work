@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <fstream>
+#include <string>
 using namespace std;
 
 
@@ -111,13 +112,84 @@ void save_to_file(Pipe& p, CS& s, bool is_pipe, bool is_cs){
     fout.open("output.txt", ios::out);
     if (fout.is_open()) {
         if (is_pipe) {
-            fout << p.Pipe_Name << endl << p.Pipe_diameter << endl << p.Pipe_lenght << endl << p.Pipe_attribute << endl;
+            fout <<"P" << p.Pipe_Name << endl << p.Pipe_diameter << endl << p.Pipe_lenght << endl << p.Pipe_attribute << endl;
         }
         if (is_cs) {
-            fout << s.CS_name << endl << s.workshops << endl << s.active_workshops << endl << s.station_class << endl;
+            fout << "C" << s.CS_name << endl << s.workshops << endl << s.active_workshops << endl << s.station_class << endl;
         }
         fout.close();
     }
+    cout << "\nWriting from the file is complete.\n\n";
+
+}
+
+void get_from_file(Pipe& p, CS& s, bool& is_pipe, bool& is_cs) {
+    ifstream fin("output.txt");
+    if (fin.is_open()) {
+        while (fin.peek() != -1) {
+            char atr = fin.get();
+
+            if (atr == 'P') {
+                is_pipe = true;
+                string name;
+                getline(fin, name);
+                p.Pipe_Name = name;
+
+                for (int i = 0; i < 3; i++) {
+                    string str;
+                    getline(fin, str);
+
+                    switch (i) {
+                    case 0: {
+                        double x = stoi(str);
+                        p.Pipe_lenght = x;
+                        break;
+                    }
+                    case 1: {
+                        float x = stoi(str);
+                        p.Pipe_diameter = x;
+                        break;
+                    }
+                    case 2: {
+                        bool x = stoi(str);
+                        p.Pipe_attribute = x;
+                        break;
+                    }
+                    }
+                }
+            }
+            else {
+                is_cs = true;
+                string name;
+                getline(fin, name);
+                s.CS_name = name;
+
+                for (int i = 0; i < 3; i++) {
+                    string str;
+                    getline(fin, str);
+
+                    switch (i) {
+                    case 0: {
+                        int x = stoi(str);
+                        s.workshops = x;
+                        break;
+                    }
+                    case 1: {
+                        int x = stoi(str);
+                        s.active_workshops = x;
+                        break;
+                    }
+                    case 2: {
+                        s.station_class = str[0]; 
+                        break;
+                    }
+                    }
+                }
+            }
+        }
+        fin.close();
+    }
+    cout << "\nReading from the file is complete.\n\n";
 }
 
 
@@ -153,6 +225,9 @@ int main()
             break;
         case 6:
             save_to_file(p, s, pipe_create, cs_create);
+            break;
+        case 7:
+            get_from_file(p, s, pipe_create, cs_create);
             break;
         }
 
