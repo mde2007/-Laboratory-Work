@@ -24,29 +24,86 @@ void launching() {
 
 }
 
+bool error_check(string c) {
+    if (cin.good()) {
+        return true;
+    }
+
+    cout << "Error, try again.\n";
+    cin.clear();
+    cin.ignore(100, '\n');
+    cout << c;
+    return false;
+}
+
 void Add_pipe(Pipe& p) {
     cout << "\n";
-    cout << "Enter the pipeline Name: ";
+    string comand;
+
+    comand = "Enter the pipeline Name: ";
+    cout << comand;
     cin >> p.Pipe_Name;
-    cout << "Enter the pipeline lenght in km: ";
+    while (!error_check(comand)) {
+        cin >> p.Pipe_Name;
+    }
+
+    comand = "Enter the pipeline lenght in km: ";
+    cout << comand;
     cin >> p.Pipe_lenght;
-    cout << "Enter the pipeline diametr in mm: ";
+    while (!error_check(comand)) {
+        cin >> p.Pipe_lenght;
+    }
+
+    comand = "Enter the pipeline diametr in mm: ";
+    cout << comand;
     cin >> p.Pipe_diameter;
-    cout << "Select the pipline status, where 1 - working, 0 - broken: ";
+    while (!error_check(comand)) {
+        cin >> p.Pipe_diameter;
+    }
+
+    comand = "Select the pipline status, where 1 - working, 0 - broken: ";
+    cout << comand;
     cin >> p.Pipe_attribute;
+    while (!error_check(comand)) {
+        cin >> p.Pipe_attribute;
+    }
+
     cout << "\n";
 }
 
+
 void Add_compression(CS& s) {
     cout << "\n";
-    cout << "Enter the Compression station Name: ";
+    string comand;
+
+    comand = "Enter the Compression station Name: ";
+    cout << comand;
     cin >> s.CS_name;
-    cout << "Enter the Compression station lenght in km: ";
+    while (!error_check(comand)) {
+        cin >> s.CS_name;
+    }
+
+    comand = "Enter the Compression station number of workshops: ";
+    cout << comand;
     cin >> s.workshops;
-    cout << "Enter the Compression station diametr in mm: ";
+    while (!error_check(comand)) {
+        cin >> s.workshops;
+    }
+
+    comand = "Enter the Compression station number of active workshops: ";
+    cout << comand;
     cin >> s.active_workshops;
-    cout << "Select the Compression station, where 1 - working, 0 - broken: ";
+    while (!error_check(comand)) {
+        cin >> s.active_workshops;
+    }
+    
+    comand = "Select the Compression station, where 1 - working, 0 - broken: ";
+    cout << comand;
     cin >> s.station_class;
+    while (!error_check(comand)) {
+        cin >> s.station_class;
+    }
+    
     cout << "\n";
 }
 
