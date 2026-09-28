@@ -36,14 +36,25 @@ bool error_check(string c) {
     return false;
 }
 
+bool Is_Correct_type(string c) {
+    if (cin.peek() == '\n') {
+        cin.ignore(100, '\n');
+        return true;
+    }
+
+    cout << "Error, the input doesn't match the type. Try again.\n";
+    cin.clear();
+    cin.ignore(100, '\n');
+    cout << c;
+    return false;
+}
+
 bool Is_Positive_mumber(double n, string c) {
     if (n > 0) {
         return true;
     }
 
     cout << "Error, the number must be positive. Try again.\n";
-    cin.clear();
-    cin.ignore(100, '\n');
     cout << c;
     return false;
 }
@@ -64,9 +75,18 @@ bool Is_Available_command(int n, string c) {
     }
 
     cout << "Error, there is no such command. Choose a number from 0 to 7.\n";
-    cin.clear();
-    cin.ignore(100, '\n');
     cout << c;
+    return false;
+}
+
+// Проверка статуса КС: принимаются только символы '0' и '1'
+bool Is_Status(char c, string prompt) {
+    if (c == '0' || c == '1') {
+        return true;
+    }
+
+    cout << "Error, the status must be 0 or 1. Try again.\n";
+    cout << prompt;
     return false;
 }
 
@@ -75,31 +95,30 @@ void Add_pipe(Pipe& p) {
     string comand;
 
     comand = "Enter the pipeline Name: ";
-    cin.ignore(100, '\n');
     cout << comand;
     getline(cin, p.Pipe_Name);
-    while (!error_check(comand) || !Is_Not_Empty(p.Pipe_Name, comand)) {
+    while (!Is_Not_Empty(p.Pipe_Name, comand)) {
         getline(cin, p.Pipe_Name);
     }
 
     comand = "Enter the pipeline lenght in km: ";
     cout << comand;
     cin >> p.Pipe_lenght;
-    while (!error_check(comand) || !Is_Positive_mumber(p.Pipe_lenght, comand)) {
+    while (!error_check(comand) || !Is_Correct_type(comand) || !Is_Positive_mumber(p.Pipe_lenght, comand)) {
         cin >> p.Pipe_lenght;
     }
 
     comand = "Enter the pipeline diametr in mm: ";
     cout << comand;
     cin >> p.Pipe_diameter;
-    while (!error_check(comand) || !Is_Positive_mumber(p.Pipe_diameter, comand)) {
+    while (!error_check(comand) || !Is_Correct_type(comand) || !Is_Positive_mumber(p.Pipe_diameter, comand)) {
         cin >> p.Pipe_diameter;
     }
 
     comand = "Select the pipline status, where 1 - working, 0 - broken: ";
     cout << comand;
     cin >> p.Pipe_attribute;
-    while (!error_check(comand)) {
+    while (!error_check(comand) || !Is_Correct_type(comand)) {
         cin >> p.Pipe_attribute;
     }
 
@@ -112,31 +131,30 @@ void Add_compression(CS& s) {
     string comand;
 
     comand = "Enter the Compression station Name: ";
-    cin.ignore(100, '\n');
     cout << comand;
     getline(cin, s.CS_name);
-    while (!error_check(comand) || !Is_Not_Empty(s.CS_name, comand)) {
+    while (!Is_Not_Empty(s.CS_name, comand)) {
         getline(cin, s.CS_name);
     }
 
     comand = "Enter the Compression station number of workshops: ";
     cout << comand;
     cin >> s.workshops;
-    while (!error_check(comand) || !Is_Positive_mumber(s.workshops, comand)) {
+    while (!error_check(comand) || !Is_Correct_type(comand) || !Is_Positive_mumber(s.workshops, comand)) {
         cin >> s.workshops;
     }
 
     comand = "Enter the Compression station number of active workshops: ";
     cout << comand;
     cin >> s.active_workshops;
-    while (!error_check(comand)) {
+    while (!error_check(comand) || !Is_Correct_type(comand)) {
         cin >> s.active_workshops;
     }
 
     comand = "Select the Compression station, where 1 - working, 0 - broken: ";
     cout << comand;
     cin >> s.station_class;
-    while (!error_check(comand)) {
+    while (!error_check(comand) || !Is_Correct_type(comand) || !Is_Status(s.station_class, comand)) {
         cin >> s.station_class;
     }
 
@@ -165,9 +183,9 @@ void view_all(bool is_pipe, bool is_cs, Pipe& p, CS& s) {
         if (is_cs) {
             cout << "The Compression:" << endl;
             cout << "The Compression station Name: " << s.CS_name << endl;
-            cout << "The pipeline lenght in km: " << s.workshops << endl;
-            cout << "The pipeline diametr in mm: " << s.active_workshops << endl;
-            cout << "The pipline status, where 1 - working, 0 - broken: " << s.station_class << endl << "\n";
+            cout << "The Compression station number of workshops: " << s.workshops << endl;
+            cout << "The Compression station number of active workshops: " << s.active_workshops << endl;
+            cout << "The Compression station status, where 1 - working, 0 - broken: " << s.station_class << endl << "\n";
         }
         else {
             cout << "The Compression:" << endl;
@@ -183,8 +201,12 @@ void edit_pipe(bool is_pipe, Pipe& p) {
     }
     else {
         cout << "\n";
-        cout << "Select the pipline status, where 1 - working, 0 - broken: ";
+        string comand = "Select the pipline status, where 1 - working, 0 - broken: ";
+        cout << comand;
         cin >> p.Pipe_attribute;
+        while (!error_check(comand) || !Is_Correct_type(comand)) {
+            cin >> p.Pipe_attribute;
+        }
         cout << "\n";
     }
 }
@@ -195,8 +217,12 @@ void edit_cs(bool is_cs, CS& s) {
         cout << "You haven't created a single Compression station \n";
     }
     else {
-        cout << "Select the Compression station status, where 1 - working, 0 - broken: ";
+        string comand = "Select the Compression station status, where 1 - working, 0 - broken: ";
+        cout << comand;
         cin >> s.station_class;
+        while (!error_check(comand) || !Is_Correct_type(comand) || !Is_Status(s.station_class, comand)) {
+            cin >> s.station_class;
+        }
         cout << "\n";
     }
 }
@@ -205,7 +231,7 @@ void save_to_file(Pipe& p, CS& s, bool is_pipe, bool is_cs) {
     fout.open("output.txt", ios::out);
     if (fout.is_open()) {
         if (is_pipe) {
-            fout << "P" << p.Pipe_Name << endl << p.Pipe_diameter << endl << p.Pipe_lenght << endl << p.Pipe_attribute << endl;
+            fout << "P" << p.Pipe_Name << endl << p.Pipe_lenght << endl << p.Pipe_diameter << endl << p.Pipe_attribute << endl;
         }
         if (is_cs) {
             fout << "C" << s.CS_name << endl << s.workshops << endl << s.active_workshops << endl << s.station_class << endl;
@@ -234,12 +260,12 @@ void get_from_file(Pipe& p, CS& s, bool& is_pipe, bool& is_cs) {
 
                     switch (i) {
                     case 0: {
-                        double x = stoi(str);
+                        double x = stod(str);
                         p.Pipe_lenght = x;
                         break;
                     }
                     case 1: {
-                        float x = stoi(str);
+                        float x = stof(str);
                         p.Pipe_diameter = x;
                         break;
                     }
@@ -298,7 +324,7 @@ int main()
         string comand = "Enter a number to execute a command: ";
         cout << comand;
         cin >> user_choise;
-        while (!error_check(comand) || !Is_Available_command(user_choise, comand)) {
+        while (!error_check(comand) || !Is_Correct_type(comand) || !Is_Available_command(user_choise, comand)) {
             cin >> user_choise;
         }
         switch (user_choise) {
