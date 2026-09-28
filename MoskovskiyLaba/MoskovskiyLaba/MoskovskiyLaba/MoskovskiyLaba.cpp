@@ -20,7 +20,7 @@ struct CS {
 
 void launching() {
     cout << "App menu:\n";
-    cout << "1 - Add pipe\n2 - Add Compression station\n3 - View all items\n4 - Edit pipe\n5 - Edit Compression station\n6 - Save\n7 - Download\n0 - Exit\nEnter a number to execute a command: ";
+    cout << "1 - Add pipe\n2 - Add Compression station\n3 - View all items\n4 - Edit pipe\n5 - Edit Compression station\n6 - Save\n7 - Download\n0 - Exit\n";
 
 }
 
@@ -36,28 +36,63 @@ bool error_check(string c) {
     return false;
 }
 
+bool Is_Positive_mumber(double n, string c) {
+    if (n > 0) {
+        return true;
+    }
+
+    cout << "Error, the number must be positive. Try again.\n";
+    cin.clear();
+    cin.ignore(100, '\n');
+    cout << c;
+    return false;
+}
+
+bool Is_Not_Empty(string str, string c) {
+    if (!str.empty()) {
+        return true;
+    }
+
+    cout << "Error, the name must not be empty. Try again.\n";
+    cout << c;
+    return false;
+}
+
+bool Is_Available_command(int n, string c) {
+    if (n >= 0 && n <= 7) {
+        return true;
+    }
+
+    cout << "Error, there is no such command. Choose a number from 0 to 7.\n";
+    cin.clear();
+    cin.ignore(100, '\n');
+    cout << c;
+    return false;
+}
+
 void Add_pipe(Pipe& p) {
     cout << "\n";
     string comand;
 
     comand = "Enter the pipeline Name: ";
+    cin.ignore(100, '\n');
     cout << comand;
-    cin >> p.Pipe_Name;
-    while (!error_check(comand)) {
-        cin >> p.Pipe_Name;
+    getline(cin, p.Pipe_Name);
+    while (!error_check(comand) || !Is_Not_Empty(p.Pipe_Name, comand)) {
+        getline(cin, p.Pipe_Name);
     }
 
     comand = "Enter the pipeline lenght in km: ";
     cout << comand;
     cin >> p.Pipe_lenght;
-    while (!error_check(comand)) {
+    while (!error_check(comand) || !Is_Positive_mumber(p.Pipe_lenght, comand)) {
         cin >> p.Pipe_lenght;
     }
 
     comand = "Enter the pipeline diametr in mm: ";
     cout << comand;
     cin >> p.Pipe_diameter;
-    while (!error_check(comand)) {
+    while (!error_check(comand) || !Is_Positive_mumber(p.Pipe_diameter, comand)) {
         cin >> p.Pipe_diameter;
     }
 
@@ -77,16 +112,17 @@ void Add_compression(CS& s) {
     string comand;
 
     comand = "Enter the Compression station Name: ";
+    cin.ignore(100, '\n');
     cout << comand;
-    cin >> s.CS_name;
-    while (!error_check(comand)) {
-        cin >> s.CS_name;
+    getline(cin, s.CS_name);
+    while (!error_check(comand) || !Is_Not_Empty(s.CS_name, comand)) {
+        getline(cin, s.CS_name);
     }
 
     comand = "Enter the Compression station number of workshops: ";
     cout << comand;
     cin >> s.workshops;
-    while (!error_check(comand)) {
+    while (!error_check(comand) || !Is_Positive_mumber(s.workshops, comand)) {
         cin >> s.workshops;
     }
 
@@ -96,14 +132,14 @@ void Add_compression(CS& s) {
     while (!error_check(comand)) {
         cin >> s.active_workshops;
     }
-    
+
     comand = "Select the Compression station, where 1 - working, 0 - broken: ";
     cout << comand;
     cin >> s.station_class;
     while (!error_check(comand)) {
         cin >> s.station_class;
     }
-    
+
     cout << "\n";
 }
 
@@ -164,12 +200,12 @@ void edit_cs(bool is_cs, CS& s) {
         cout << "\n";
     }
 }
-void save_to_file(Pipe& p, CS& s, bool is_pipe, bool is_cs){
+void save_to_file(Pipe& p, CS& s, bool is_pipe, bool is_cs) {
     ofstream fout;
     fout.open("output.txt", ios::out);
     if (fout.is_open()) {
         if (is_pipe) {
-            fout <<"P" << p.Pipe_Name << endl << p.Pipe_diameter << endl << p.Pipe_lenght << endl << p.Pipe_attribute << endl;
+            fout << "P" << p.Pipe_Name << endl << p.Pipe_diameter << endl << p.Pipe_lenght << endl << p.Pipe_attribute << endl;
         }
         if (is_cs) {
             fout << "C" << s.CS_name << endl << s.workshops << endl << s.active_workshops << endl << s.station_class << endl;
@@ -237,7 +273,7 @@ void get_from_file(Pipe& p, CS& s, bool& is_pipe, bool& is_cs) {
                         break;
                     }
                     case 2: {
-                        s.station_class = str[0]; 
+                        s.station_class = str[0];
                         break;
                     }
                     }
@@ -259,7 +295,12 @@ int main()
     while (true) {
         launching();
         int user_choise;
+        string comand = "Enter a number to execute a command: ";
+        cout << comand;
         cin >> user_choise;
+        while (!error_check(comand) || !Is_Available_command(user_choise, comand)) {
+            cin >> user_choise;
+        }
         switch (user_choise) {
         case 0:
             return 0;
@@ -290,5 +331,3 @@ int main()
 
     }
 }
-
-
