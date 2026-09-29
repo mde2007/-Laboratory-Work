@@ -79,7 +79,7 @@ bool Is_Available_command(int n, string c) {
     return false;
 }
 
-// Проверка статуса КС: принимаются только символы '0' и '1'
+
 bool Is_Status(char c, string prompt) {
     if (c == '0' || c == '1') {
         return true;
@@ -146,9 +146,17 @@ void Add_compression(CS& s) {
 
     comand = "Enter the Compression station number of active workshops: ";
     cout << comand;
-    cin >> s.active_workshops;
-    while (!error_check(comand) || !Is_Correct_type(comand)) {
+    while (true) {
         cin >> s.active_workshops;
+        if (!error_check(comand) || !Is_Correct_type(comand)) {
+            continue;
+        }
+        if (s.active_workshops < 0 || s.active_workshops > s.workshops) {
+            cout << "Error, the number of active workshops must be from 0 to " << s.workshops << ". Try again.\n";
+            cout << comand;
+            continue;
+        }
+        break;
     }
 
     comand = "Select the Compression station, where 1 - working, 0 - broken: ";
@@ -161,36 +169,43 @@ void Add_compression(CS& s) {
     cout << "\n";
 }
 
+void print_p(const Pipe& p) {
+    cout << "The pipeline:" << endl;
+    cout << "The pipeline Name: " << p.Pipe_Name << endl;
+    cout << "The pipeline lenght in km: " << p.Pipe_lenght << endl;
+    cout << "The pipeline diametr in mm: " << p.Pipe_diameter << endl;
+    cout << "The pipline status, where 1 - working, 0 - broken: " << p.Pipe_attribute << endl << "\n";
+}
+
+void print_s(const CS& s) {
+    cout << "The Compression:" << endl;
+    cout << "The Compression station Name: " << s.CS_name << endl;
+    cout << "The Compression station number of workshops: " << s.workshops << endl;
+    cout << "The Compression station number of active workshops: " << s.active_workshops << endl;
+    cout << "The Compression station status, where 1 - working, 0 - broken: " << s.station_class << endl << "\n";
+}
+
 void view_all(bool is_pipe, bool is_cs, Pipe& p, CS& s) {
+    cout << "\n";
     if (!is_pipe && !is_cs) {
-        cout << "\n";
         cout << "You haven't created a single component" << endl << "\n";
+        return;
+    }
+
+    if (is_pipe) {
+        print_p(p);
     }
     else {
-        if (is_pipe) {
-            cout << "\n";
-            cout << "The pipeline:" << endl;
-            cout << "The pipeline Name: " << p.Pipe_Name << endl;
-            cout << "The pipeline lenght in km: " << p.Pipe_lenght << endl;
-            cout << "The pipeline diametr in mm: " << p.Pipe_diameter << endl;
-            cout << "The pipline status, where 1 - working, 0 - broken: " << p.Pipe_attribute << endl << "\n";
-        }
-        else {
-            cout << "\n";
-            cout << "The pipeline:" << endl;
-            cout << "You haven't created a single pipe." << endl << "\n";
-        }
-        if (is_cs) {
-            cout << "The Compression:" << endl;
-            cout << "The Compression station Name: " << s.CS_name << endl;
-            cout << "The Compression station number of workshops: " << s.workshops << endl;
-            cout << "The Compression station number of active workshops: " << s.active_workshops << endl;
-            cout << "The Compression station status, where 1 - working, 0 - broken: " << s.station_class << endl << "\n";
-        }
-        else {
-            cout << "The Compression:" << endl;
-            cout << "You haven't created a single cs." << endl << "\n";
-        }
+        cout << "The pipeline:" << endl;
+        cout << "You haven't created a single pipe." << endl << "\n";
+    }
+
+    if (is_cs) {
+        print_s(s);
+    }
+    else {
+        cout << "The Compression:" << endl;
+        cout << "You haven't created a single cs." << endl << "\n";
     }
 }
 
