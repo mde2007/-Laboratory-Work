@@ -259,70 +259,70 @@ void save_to_file(Pipe& p, CS& s, bool is_pipe, bool is_cs) {
 
 void get_from_file(Pipe& p, CS& s, bool& is_pipe, bool& is_cs) {
     ifstream fin("output.txt");
-    if (fin.is_open()) {
+    if (!fin.is_open()) {
+        cout << "\nError: could not open file output.txt\n\n";
+        return;
+    }
+
+    bool error = false;
+    try {
         while (fin.peek() != -1) {
             char atr = fin.get();
 
             if (atr == 'P') {
                 is_pipe = true;
+
                 string name;
                 getline(fin, name);
                 p.Pipe_Name = name;
 
-                for (int i = 0; i < 3; i++) {
-                    string str;
-                    getline(fin, str);
+                string str;
 
-                    switch (i) {
-                    case 0: {
-                        double x = stod(str);
-                        p.Pipe_lenght = x;
-                        break;
-                    }
-                    case 1: {
-                        float x = stof(str);
-                        p.Pipe_diameter = x;
-                        break;
-                    }
-                    case 2: {
-                        bool x = stoi(str);
-                        p.Pipe_attribute = x;
-                        break;
-                    }
-                    }
-                }
+                getline(fin, str);
+                p.Pipe_lenght = stod(str);
+
+                getline(fin, str);
+                p.Pipe_diameter = stof(str);
+
+                getline(fin, str);
+                p.Pipe_attribute = stoi(str);
             }
             else {
                 is_cs = true;
+
                 string name;
                 getline(fin, name);
                 s.CS_name = name;
 
-                for (int i = 0; i < 3; i++) {
-                    string str;
-                    getline(fin, str);
+                string str;
 
-                    switch (i) {
-                    case 0: {
-                        int x = stoi(str);
-                        s.workshops = x;
-                        break;
-                    }
-                    case 1: {
-                        int x = stoi(str);
-                        s.active_workshops = x;
-                        break;
-                    }
-                    case 2: {
-                        s.station_class = str[0];
-                        break;
-                    }
-                    }
-                }
+                getline(fin, str);
+                s.workshops = stoi(str);
+
+                getline(fin, str);
+                s.active_workshops = stoi(str);
+
+                getline(fin, str);
+                s.station_class = str[0];
             }
         }
-        fin.close();
+
+        if (fin.bad()) {
+            error = true;
+        }
     }
+    catch (const exception& e) {
+        cout << "\nRead error: " << "\n";
+        error = true;
+    }
+
+    fin.close();
+
+    if (error) {
+        cout << "\nError: something went wrong while reading the file.\n\n";
+        return;
+    }
+
     cout << "\nReading from the file is complete.\n\n";
 }
 
