@@ -5,13 +5,17 @@ using namespace std;
 
 
 struct Pipe {
+    int pipeid;
     string Pipe_Name;
     double Pipe_lenght;
     float Pipe_diameter;
     bool Pipe_attribute;
 };
 
+
+
 struct CS {
+    int csid;
     string CS_name;
     int workshops;
     int active_workshops;
@@ -90,39 +94,40 @@ bool Is_Status(char c, string prompt) {
     return false;
 }
 
-void Add_pipe(Pipe& p) {
+istream& operator >> (istream& in, Pipe& p) {
     cout << "\n";
     string comand;
 
     comand = "Enter the pipeline Name: ";
     cout << comand;
-    getline(cin >> ws, p.Pipe_Name);
+    getline(in >> ws, p.Pipe_Name);
     while (!Is_Not_Empty(p.Pipe_Name, comand)) {
-        getline(cin, p.Pipe_Name);
+        getline(in, p.Pipe_Name);
     }
 
     comand = "Enter the pipeline lenght in km: ";
     cout << comand;
-    cin >> p.Pipe_lenght;
+    in >> p.Pipe_lenght;
     while (!error_check(comand) || !Is_Correct_type(comand) || !Is_Positive_mumber(p.Pipe_lenght, comand)) {
-        cin >> p.Pipe_lenght;
+        in >> p.Pipe_lenght;
     }
 
     comand = "Enter the pipeline diametr in mm: ";
     cout << comand;
-    cin >> p.Pipe_diameter;
+    in >> p.Pipe_diameter;
     while (!error_check(comand) || !Is_Correct_type(comand) || !Is_Positive_mumber(p.Pipe_diameter, comand)) {
-        cin >> p.Pipe_diameter;
+        in >> p.Pipe_diameter;
     }
 
     comand = "Select the pipline status, where 1 - working, 0 - broken: ";
     cout << comand;
-    cin >> p.Pipe_attribute;
+    in >> p.Pipe_attribute;
     while (!error_check(comand) || !Is_Correct_type(comand)) {
-        cin >> p.Pipe_attribute;
+        in >> p.Pipe_attribute;
     }
 
     cout << "\n";
+    return in;
 }
 
 
@@ -169,20 +174,22 @@ void Add_compression(CS& s) {
     cout << "\n";
 }
 
-void print_p(const Pipe& p) {
-    cout << "The pipeline:" << endl;
-    cout << "The pipeline Name: " << p.Pipe_Name << endl;
-    cout << "The pipeline lenght in km: " << p.Pipe_lenght << endl;
-    cout << "The pipeline diametr in mm: " << p.Pipe_diameter << endl;
-    cout << "The pipline status, where 1 - working, 0 - broken: " << p.Pipe_attribute << endl << "\n";
+ostream& operator << (ostream& out, const Pipe& p) {
+    out << "The pipeline:" << endl;
+    out << "The pipeline Name: " << p.Pipe_Name << endl;
+    out << "The pipeline lenght in km: " << p.Pipe_lenght << endl;
+    out << "The pipeline diametr in mm: " << p.Pipe_diameter << endl;
+    out << "The pipline status, where 1 - working, 0 - broken: " << p.Pipe_attribute << endl << "\n";
+    return out;
 }
 
-void print_s(const CS& s) {
-    cout << "The Compression:" << endl;
-    cout << "The Compression station Name: " << s.CS_name << endl;
-    cout << "The Compression station number of workshops: " << s.workshops << endl;
-    cout << "The Compression station number of active workshops: " << s.active_workshops << endl;
-    cout << "The Compression station status, where 1 - working, 0 - broken: " << s.station_class << endl << "\n";
+ostream& operator << (ostream& out, const CS& s) {
+    out << "The Compression:" << endl;
+    out << "The Compression station Name: " << s.CS_name << endl;
+    out << "The Compression station number of workshops: " << s.workshops << endl;
+    out << "The Compression station number of active workshops: " << s.active_workshops << endl;
+    out << "The Compression station status, where 1 - working, 0 - broken: " << s.station_class << endl << "\n";
+    return out;
 }
 
 void view_all(bool is_pipe, bool is_cs, Pipe& p, CS& s) {
@@ -193,7 +200,7 @@ void view_all(bool is_pipe, bool is_cs, Pipe& p, CS& s) {
     }
 
     if (is_pipe) {
-        print_p(p);
+        cout << p;
     }
     else {
         cout << "The pipeline:" << endl;
@@ -201,7 +208,7 @@ void view_all(bool is_pipe, bool is_cs, Pipe& p, CS& s) {
     }
 
     if (is_cs) {
-        print_s(s);
+        cout << s;
     }
     else {
         cout << "The Compression:" << endl;
@@ -360,7 +367,7 @@ int main()
         case 0:
             return 0;
         case 1:
-            Add_pipe(p);
+            cin >> p;
             pipe_create = true;
             break;
         case 2:
