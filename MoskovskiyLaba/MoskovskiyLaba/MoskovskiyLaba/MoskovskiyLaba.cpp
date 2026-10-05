@@ -249,62 +249,69 @@ void edit_cs(bool is_cs, CS& s) {
     }
 }
 
-void save_pipe(Pipe& p, ofstream& fout) {
+ofstream& operator << (ofstream& fout, const Pipe& p) {
     if (fout.is_open()) {
         fout << "P" << p.Pipe_Name << endl << p.Pipe_lenght << endl << p.Pipe_diameter << endl << p.Pipe_attribute << endl;
     }
+    return fout;
 }
 
-void save_cs(CS& s, ofstream& fout) {
+ofstream& operator << (ofstream& fout, const CS& s) {
     if (fout.is_open()) {
         fout << "C" << s.CS_name << endl << s.workshops << endl << s.active_workshops << endl << s.station_class << endl;
     }
+    return fout;
 }
+
 void save_to_file(Pipe& p, CS& s, bool is_pipe, bool is_cs) {
     ofstream fout;
     fout.open("output.txt", ios::out);
     if (is_pipe) {
-        save_pipe(p, fout);
+        fout << p;
     }
     if (is_cs) {
-        save_cs(s, fout);
+        fout << s;
     }
     cout << "\nWriting from the file is complete.\n\n";
 
 }
 
-void get_pipe(Pipe& p,ifstream & fin) {
+ifstream& operator >> (ifstream& in, Pipe& p) {
     string name;
-    getline(fin, name);
+    getline(in, name);
     p.Pipe_Name = name;
 
     string str;
 
-    getline(fin, str);
+    getline(in, str);
     p.Pipe_lenght = stod(str);
 
-    getline(fin, str);
+    getline(in, str);
     p.Pipe_diameter = stof(str);
 
-    getline(fin, str);
+    getline(in, str);
     p.Pipe_attribute = stoi(str);
+
+    return in;
 }
 
-void get_cs(CS& s, ifstream& fin) {
+ifstream& operator >> (ifstream& in, CS& s) {
     string name;
-    getline(fin, name);
+    getline(in, name);
     s.CS_name = name;
 
     string str;
 
-    getline(fin, str);
+    getline(in, str);
     s.workshops = stoi(str);
 
-    getline(fin, str);
+    getline(in, str);
     s.active_workshops = stoi(str);
 
-    getline(fin, str);
+    getline(in, str);
     s.station_class = str[0];
+
+    return in;
 }
 
 void get_from_file(Pipe& p, CS& s, bool& is_pipe, bool& is_cs) {
@@ -319,11 +326,11 @@ void get_from_file(Pipe& p, CS& s, bool& is_pipe, bool& is_cs) {
         while (fin.peek() != -1) {
             char atr = fin.get();
             if (atr == 'P') {
-                get_pipe(p, fin);
+                fin >> p;
                 is_pipe = true;
             }
             else {
-                get_cs(s, fin);
+                fin >> s;
                 is_cs = true;
             }
         }
