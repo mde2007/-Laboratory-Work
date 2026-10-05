@@ -96,7 +96,7 @@ void Add_pipe(Pipe& p) {
 
     comand = "Enter the pipeline Name: ";
     cout << comand;
-    getline(cin, p.Pipe_Name);
+    getline(cin >> ws, p.Pipe_Name);
     while (!Is_Not_Empty(p.Pipe_Name, comand)) {
         getline(cin, p.Pipe_Name);
     }
@@ -132,7 +132,7 @@ void Add_compression(CS& s) {
 
     comand = "Enter the Compression station Name: ";
     cout << comand;
-    getline(cin, s.CS_name);
+    getline(cin >> ws, s.CS_name);
     while (!Is_Not_Empty(s.CS_name, comand)) {
         getline(cin, s.CS_name);
     }
@@ -241,20 +241,63 @@ void edit_cs(bool is_cs, CS& s) {
         cout << "\n";
     }
 }
+
+void save_pipe(Pipe& p, ofstream& fout) {
+    if (fout.is_open()) {
+        fout << "P" << p.Pipe_Name << endl << p.Pipe_lenght << endl << p.Pipe_diameter << endl << p.Pipe_attribute << endl;
+    }
+}
+
+void save_cs(CS& s, ofstream& fout) {
+    if (fout.is_open()) {
+        fout << "C" << s.CS_name << endl << s.workshops << endl << s.active_workshops << endl << s.station_class << endl;
+    }
+}
 void save_to_file(Pipe& p, CS& s, bool is_pipe, bool is_cs) {
     ofstream fout;
     fout.open("output.txt", ios::out);
-    if (fout.is_open()) {
-        if (is_pipe) {
-            fout << "P" << p.Pipe_Name << endl << p.Pipe_lenght << endl << p.Pipe_diameter << endl << p.Pipe_attribute << endl;
-        }
-        if (is_cs) {
-            fout << "C" << s.CS_name << endl << s.workshops << endl << s.active_workshops << endl << s.station_class << endl;
-        }
-        fout.close();
+    if (is_pipe) {
+        save_pipe(p, fout);
+    }
+    if (is_cs) {
+        save_cs(s, fout);
     }
     cout << "\nWriting from the file is complete.\n\n";
 
+}
+
+void get_pipe(Pipe& p,ifstream & fin) {
+    string name;
+    getline(fin, name);
+    p.Pipe_Name = name;
+
+    string str;
+
+    getline(fin, str);
+    p.Pipe_lenght = stod(str);
+
+    getline(fin, str);
+    p.Pipe_diameter = stof(str);
+
+    getline(fin, str);
+    p.Pipe_attribute = stoi(str);
+}
+
+void get_cs(CS& s, ifstream& fin) {
+    string name;
+    getline(fin, name);
+    s.CS_name = name;
+
+    string str;
+
+    getline(fin, str);
+    s.workshops = stoi(str);
+
+    getline(fin, str);
+    s.active_workshops = stoi(str);
+
+    getline(fin, str);
+    s.station_class = str[0];
 }
 
 void get_from_file(Pipe& p, CS& s, bool& is_pipe, bool& is_cs) {
@@ -268,42 +311,13 @@ void get_from_file(Pipe& p, CS& s, bool& is_pipe, bool& is_cs) {
     try {
         while (fin.peek() != -1) {
             char atr = fin.get();
-
             if (atr == 'P') {
+                get_pipe(p, fin);
                 is_pipe = true;
-
-                string name;
-                getline(fin, name);
-                p.Pipe_Name = name;
-
-                string str;
-
-                getline(fin, str);
-                p.Pipe_lenght = stod(str);
-
-                getline(fin, str);
-                p.Pipe_diameter = stof(str);
-
-                getline(fin, str);
-                p.Pipe_attribute = stoi(str);
             }
             else {
+                get_cs(s, fin);
                 is_cs = true;
-
-                string name;
-                getline(fin, name);
-                s.CS_name = name;
-
-                string str;
-
-                getline(fin, str);
-                s.workshops = stoi(str);
-
-                getline(fin, str);
-                s.active_workshops = stoi(str);
-
-                getline(fin, str);
-                s.station_class = str[0];
             }
         }
 
