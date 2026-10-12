@@ -4,6 +4,7 @@
 #include "Checks.h"
 #include "Pipe.h"
 #include "CS.h"
+#include <unordered_map>
 
 using namespace std;
 
@@ -23,23 +24,46 @@ void launching()
     cout << "0 - Exit\n";
 }
 
-void viewAll(bool isPipe, bool isCS, const Pipe& p, const CS& s)
-{
+void Add_pipe(unordered_map<int, Pipe>& pipes) {
+    Pipe p;
+    cin >> p;
+    int id = p.getId();
+    pipes.emplace(id, p);    
+    cout << "Pipe added with id = " << p.getId() << "\n";
+}
+void Add_CS(unordered_map<int, CS>& cs) {
+    CS s;
+    cin >> s;
+    int id = s.getId();
+    cs.emplace(id, s);
+    cout << "CS added with id = " << s.getId() << "\n";
+}
+void viewAll(const unordered_map<int, Pipe>& pipes,
+    const unordered_map<int, CS>& cs){
     cout << "\n";
-    if (!isPipe && !isCS)
+    if (pipes.empty() && cs.empty())
     {
         cout << "You haven't created a single component\n\n";
         return;
     }
 
-    if (isPipe) cout << p;
+    if (!pipes.empty()) {
+        for (const auto& [id, pipe] : pipes)
+        {
+            cout << pipe;
+        }
+    }
     else
     {
-        cout << "The pipeline:\n";
         cout << "You haven't created a single pipe.\n\n";
     }
 
-    if (isCS) cout << s;
+    if (!cs.empty()) {
+        for (const auto& [id, s] : cs)
+        {
+            cout << s;
+        }
+    }
     else
     {
         cout << "The Compression:\n";
@@ -47,96 +71,92 @@ void viewAll(bool isPipe, bool isCS, const Pipe& p, const CS& s)
     }
 }
 
-void editPipe(bool isPipe, Pipe& p)
-{
-    cout << "\n";
-    if (!isPipe)
-        cout << "You haven't created a single pipe.\n";
-    else
-    {
-        p.working = inputInt(cin, "Select the pipeline status, where 1 - working, 0 - broken: ", 0, 1) == 1;
-        cout << "\n";
-    }
-}
-
-void editCS(bool isCS, CS& s)
-{
-    cout << "\n";
-    if (!isCS)
-        cout << "You haven't created a single Compression station\n";
-    else
-    {
-        s.working = inputInt(cin, "Select the Compression station status, where 1 - working, 0 - broken: ", 0, 1) == 1;
-        cout << "\n";
-    }
-}
-
-void saveToFile(const Pipe& p, const CS& s, bool isPipe, bool isCS)
-{
-    ofstream fout("output.txt");
-    if (!fout.is_open())
-    {
-        cout << "\nError: could not open file output.txt\n\n";
-        return;
-    }
-
-    if (isPipe) fout << p;
-    if (isCS)   fout << s;
-
-    fout.close();
-    cout << "\nWriting to the file is complete.\n\n";
-}
-
-void loadFromFile(Pipe& p, CS& s, bool& isPipe, bool& isCS)
-{
-    ifstream fin("output.txt");
-    if (!fin.is_open())
-    {
-        cout << "\nError: could not open file output.txt\n\n";
-        return;
-    }
-
-    bool error = false;
-    try
-    {
-        while (fin.peek() != EOF)
-        {
-            char marker = fin.get();
-
-            if (marker == 'P')
-            {
-                fin >> p;
-                isPipe = true;
-            }
-            else if (marker == 'C')
-            {
-                fin >> s;
-                isCS = true;
-            }
-        }
-        if (fin.bad()) error = true;
-    }
-    catch (const exception&)
-    {
-        error = true;
-    }
-    fin.close();
-
-    if (error)
-    {
-        cout << "\nError: something went wrong while reading the file.\n\n";
-        return;
-    }
-
-    cout << "\nReading from the file is complete.\n\n";
-}
+//void editPipe(const unordered_map<int, Pipe>& pipes)
+//{
+//    cout << "\n";
+//    if (pipes.empty())
+//        cout << "You haven't created a single pipe.\n";
+//    else
+//    {
+//        p.working = inputInt(cin, "Select the pipeline status, where 1 - working, 0 - broken: ", 0, 1) == 1;
+//        cout << "\n";
+//    }
+//}
+//
+//void editCS(const unordered_map<int, CS>& cs)
+//{
+//    cout << "\n";
+//    if (cs.empty())
+//        cout << "You haven't created a single Compression station\n";
+//    else
+//    {
+//        s.working = inputInt(cin, "Select the Compression station status, where 1 - working, 0 - broken: ", 0, 1) == 1;
+//        cout << "\n";
+//    }
+//}
+//
+//void saveToFile(const unordered_map<int, Pipe>& pipes, const unordered_map<int, CS>& cs)
+//{
+//    ofstream fout("output.txt");
+//    if (!fout.is_open())
+//    {
+//        cout << "\nError: could not open file output.txt\n\n";
+//        return;
+//    }
+//
+//    if (!pipes.empty()) fout << p;
+//    if (!cs.empty())  fout << s;
+//
+//    fout.close();
+//    cout << "\nWriting to the file is complete.\n\n";
+//}
+//
+//void loadFromFile(const unordered_map<int, Pipe>& pipes, const unordered_map<int, CS>& cs)
+//{
+//    ifstream fin("output.txt");
+//    if (!fin.is_open())
+//    {
+//        cout << "\nError: could not open file output.txt\n\n";
+//        return;
+//    }
+//
+//    bool error = false;
+//    try
+//    {
+//        while (fin.peek() != EOF)
+//        {
+//            char marker = fin.get();
+//
+//            if (marker == 'P')
+//            {
+//                fin >> p;
+//            }
+//            else if (marker == 'C')
+//            {
+//                fin >> s;
+//            }
+//        }
+//        if (fin.bad()) error = true;
+//    }
+//    catch (const exception&)
+//    {
+//        error = true;
+//    }
+//    fin.close();
+//
+//    if (error)
+//    {
+//        cout << "\nError: something went wrong while reading the file.\n\n";
+//        return;
+//    }
+//
+//    cout << "\nReading from the file is complete.\n\n";
+//}
 
 int main()
 {
-    Pipe p;
-    CS s;
-    bool pipeCreated = false;
-    bool csCreated = false;
+    unordered_map<int, Pipe> pipes;
+    unordered_map<int, CS> cs;
 
     while (true)
     {
@@ -148,30 +168,26 @@ int main()
         case 0:
             return 0;
         case 1:
-            cin >> p;
-            pipeCreated = true;
-            cout << "\nPipe added with id = " << p.getId() << "\n\n";
+            Add_pipe(pipes);
             break;
         case 2:
-            cin >> s;
-            csCreated = true;
-            cout << "\nCS added with id = " << s.getId() << "\n\n";
+            Add_CS(cs);
             break;
         case 3:
-            viewAll(pipeCreated, csCreated, p, s);
+            viewAll(pipes, cs);
             break;
-        case 4:
-            editPipe(pipeCreated, p);
-            break;
-        case 5:
-            editCS(csCreated, s);
-            break;
-        case 6:
-            saveToFile(p, s, pipeCreated, csCreated);
-            break;
-        case 7:
-            loadFromFile(p, s, pipeCreated, csCreated);
-            break;
+        //case 4:
+        //    editPipe(pipes);
+        //    break;
+        //case 5:
+        //    editCS(cs);
+        //    break;
+        //case 6:
+        //    saveToFile(pipes, cs);
+        //    break;
+        //case 7:
+        //    loadFromFile(pipes, cs);
+        //    break;
         }
     }
 }
