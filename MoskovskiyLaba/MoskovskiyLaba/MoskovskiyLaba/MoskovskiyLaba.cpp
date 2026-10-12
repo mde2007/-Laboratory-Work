@@ -1,278 +1,129 @@
 ﻿#include <iostream>
 #include <fstream>
 #include <string>
+#include "Checks.h"
+#include "Pipe.h"
+#include "CS.h"
+
 using namespace std;
 
+int Pipe::MaxID = 0;
+int CS::MaxID = 0;
 
-struct Pipe {
-    int pipeid;
-    string Pipe_Name;
-    double Pipe_lenght;
-    float Pipe_diameter;
-    bool Pipe_attribute;
-};
-
-struct CS {
-    int csid;
-    string CS_name;
-    int workshops;
-    int active_workshops;
-    char station_class;
-};
-
-void launching() {
+void launching()
+{
     cout << "App menu:\n";
-    cout << "1 - Add pipe\n2 - Add Compression station\n3 - View all items\n4 - Edit pipe\n5 - Edit Compression station\n6 - Save\n7 - Download\n0 - Exit\n";
+    cout << "1 - Add pipe\n";
+    cout << "2 - Add Compression station\n";
+    cout << "3 - View all items\n";
+    cout << "4 - Edit pipe\n";
+    cout << "5 - Edit Compression station\n";
+    cout << "6 - Save\n";
+    cout << "7 - Download\n";
+    cout << "0 - Exit\n";
 }
 
-void clear_input(istream& in) {
-    in.clear();
-    in.ignore(100, '\n');
-}
-
-string input_name(istream& in, string comand) {
-    string name;
-    cout << comand;
-    getline(in >> ws, name);
-    while (name.empty()) {
-        cout << "Error, the name must not be empty. Try again.\n";
-        cout << comand;
-        getline(in >> ws, name);
-    }
-    return name;
-}
-
-double input_positive_double(istream& in, string comand) {
-    double x;
-    while (true) {
-        cout << comand;
-        in >> x;
-        if (in.fail() || in.peek() != '\n') {
-            cout << "Error, the input doesn't match the type. Try again.\n";
-            clear_input(in);
-        }
-        else if (x <= 0) {
-            cout << "Error, the number must be positive. Try again.\n";
-            in.ignore(100, '\n');
-        }
-        else {
-            in.ignore(100, '\n');
-            return x;
-        }
-    }
-}
-
-int input_int(istream& in, string comand, int min, int max) {
-    int x;
-    while (true) {
-        cout << comand;
-        in >> x;
-        if (in.fail() || in.peek() != '\n') {
-            cout << "Error, the input doesn't match the type. Try again.\n";
-            clear_input(in);
-        }
-        else if (x < min || x > max) {
-            cout << "Error, the number must be from " << min << " to " << max << ". Try again.\n";
-            in.ignore(100, '\n');
-        }
-        else {
-            in.ignore(100, '\n');
-            return x;
-        }
-    }
-}
-
-char input_status(istream& in, string comand) {
-    int x = input_int(in, comand, 0, 1);
-    return '0' + x;
-}
-
-istream& operator >> (istream& in, Pipe& p) {
+void viewAll(bool isPipe, bool isCS, const Pipe& p, const CS& s)
+{
     cout << "\n";
-    p.Pipe_Name = input_name(in, "Enter the pipeline Name: ");
-    p.Pipe_lenght = input_positive_double(in, "Enter the pipeline lenght in km: ");
-    p.Pipe_diameter = input_positive_double(in, "Enter the pipeline diametr in mm: ");
-    p.Pipe_attribute = input_int(in, "Select the pipline status, where 1 - working, 0 - broken: ", 0, 1);
-    cout << "\n";
-    return in;
-}
-
-istream& operator >> (istream& in, CS& s) {
-    cout << "\n";
-    s.CS_name = input_name(in, "Enter the Compression station Name: ");
-    s.workshops = input_int(in, "Enter the Compression station number of workshops: ", 1, 1000);
-    s.active_workshops = input_int(in, "Enter the Compression station number of active workshops: ", 0, s.workshops);
-    s.station_class = input_status(in, "Select the Compression station, where 1 - working, 0 - broken: ");
-    cout << "\n";
-    return in;
-}
-
-ostream& operator << (ostream& out, const Pipe& p) {
-    out << "The pipeline:" << endl;
-    out << "The pipeline Name: " << p.Pipe_Name << endl;
-    out << "The pipeline lenght in km: " << p.Pipe_lenght << endl;
-    out << "The pipeline diametr in mm: " << p.Pipe_diameter << endl;
-    out << "The pipline status, where 1 - working, 0 - broken: " << p.Pipe_attribute << endl << "\n";
-    return out;
-}
-
-ostream& operator << (ostream& out, const CS& s) {
-    out << "The Compression:" << endl;
-    out << "The Compression station Name: " << s.CS_name << endl;
-    out << "The Compression station number of workshops: " << s.workshops << endl;
-    out << "The Compression station number of active workshops: " << s.active_workshops << endl;
-    out << "The Compression station status, where 1 - working, 0 - broken: " << s.station_class << endl << "\n";
-    return out;
-}
-
-void view_all(bool is_pipe, bool is_cs, Pipe& p, CS& s) {
-    cout << "\n";
-    if (!is_pipe && !is_cs) {
-        cout << "You haven't created a single component" << endl << "\n";
+    if (!isPipe && !isCS)
+    {
+        cout << "You haven't created a single component\n\n";
         return;
     }
 
-    if (is_pipe) {
-        cout << p;
-    }
-    else {
-        cout << "The pipeline:" << endl;
-        cout << "You haven't created a single pipe." << endl << "\n";
+    if (isPipe) cout << p;
+    else
+    {
+        cout << "The pipeline:\n";
+        cout << "You haven't created a single pipe.\n\n";
     }
 
-    if (is_cs) {
-        cout << s;
-    }
-    else {
-        cout << "The Compression:" << endl;
-        cout << "You haven't created a single cs." << endl << "\n";
+    if (isCS) cout << s;
+    else
+    {
+        cout << "The Compression:\n";
+        cout << "You haven't created a single cs.\n\n";
     }
 }
 
-void edit_pipe(bool is_pipe, Pipe& p) {
+void editPipe(bool isPipe, Pipe& p)
+{
     cout << "\n";
-    if (!is_pipe) {
-        cout << "You haven't created a single pipe." << endl;
-    }
-    else {
-        p.Pipe_attribute = input_int(cin, "Select the pipline status, where 1 - working, 0 - broken: ", 0, 1);
+    if (!isPipe)
+        cout << "You haven't created a single pipe.\n";
+    else
+    {
+        p.working = inputInt(cin, "Select the pipeline status, where 1 - working, 0 - broken: ", 0, 1) == 1;
         cout << "\n";
     }
 }
 
-void edit_cs(bool is_cs, CS& s) {
+void editCS(bool isCS, CS& s)
+{
     cout << "\n";
-    if (!is_cs) {
-        cout << "You haven't created a single Compression station \n";
-    }
-    else {
-        s.station_class = input_status(cin, "Select the Compression station status, where 1 - working, 0 - broken: ");
+    if (!isCS)
+        cout << "You haven't created a single Compression station\n";
+    else
+    {
+        s.working = inputInt(cin, "Select the Compression station status, where 1 - working, 0 - broken: ", 0, 1) == 1;
         cout << "\n";
     }
 }
 
-ofstream& operator << (ofstream& fout, const Pipe& p) {
-    if (fout.is_open()) {
-        fout << "P" << p.Pipe_Name << endl << p.Pipe_lenght << endl << p.Pipe_diameter << endl << p.Pipe_attribute << endl;
-    }
-    return fout;
-}
-
-ofstream& operator << (ofstream& fout, const CS& s) {
-    if (fout.is_open()) {
-        fout << "C" << s.CS_name << endl << s.workshops << endl << s.active_workshops << endl << s.station_class << endl;
-    }
-    return fout;
-}
-
-void save_to_file(Pipe& p, CS& s, bool is_pipe, bool is_cs) {
-    ofstream fout;
-    fout.open("output.txt", ios::out);
-    if (!fout.is_open()) {
+void saveToFile(const Pipe& p, const CS& s, bool isPipe, bool isCS)
+{
+    ofstream fout("output.txt");
+    if (!fout.is_open())
+    {
         cout << "\nError: could not open file output.txt\n\n";
         return;
     }
-    if (is_pipe) {
-        fout << p;
-    }
-    if (is_cs) {
-        fout << s;
-    }
+
+    if (isPipe) fout << p;
+    if (isCS)   fout << s;
+
     fout.close();
     cout << "\nWriting to the file is complete.\n\n";
 }
 
-ifstream& operator >> (ifstream& in, Pipe& p) {
-    string name;
-    getline(in, name);
-    p.Pipe_Name = name;
-
-    string str;
-
-    getline(in, str);
-    p.Pipe_lenght = stod(str);
-
-    getline(in, str);
-    p.Pipe_diameter = stof(str);
-
-    getline(in, str);
-    p.Pipe_attribute = stoi(str);
-
-    return in;
-}
-
-ifstream& operator >> (ifstream& in, CS& s) {
-    string name;
-    getline(in, name);
-    s.CS_name = name;
-
-    string str;
-
-    getline(in, str);
-    s.workshops = stoi(str);
-
-    getline(in, str);
-    s.active_workshops = stoi(str);
-
-    getline(in, str);
-    s.station_class = str[0];
-
-    return in;
-}
-
-void get_from_file(Pipe& p, CS& s, bool& is_pipe, bool& is_cs) {
+void loadFromFile(Pipe& p, CS& s, bool& isPipe, bool& isCS)
+{
     ifstream fin("output.txt");
-    if (!fin.is_open()) {
+    if (!fin.is_open())
+    {
         cout << "\nError: could not open file output.txt\n\n";
         return;
     }
 
     bool error = false;
-    try {
-        while (fin.peek() != EOF) {
-            char atr = fin.get();
-            if (atr == 'P') {
-                fin >> p;
-                is_pipe = true;
-            }
-            else {
-                fin >> s;
-                is_cs = true;
-            }
-        }
+    try
+    {
+        while (fin.peek() != EOF)
+        {
+            char marker = fin.get();
 
-        if (fin.bad()) {
-            error = true;
+            if (marker == 'P')
+            {
+                fin >> p;
+                isPipe = true;
+            }
+            else if (marker == 'C')
+            {
+                fin >> s;
+                isCS = true;
+            }
         }
+        if (fin.bad()) error = true;
     }
-    catch (const exception& e) {
-        cout << "\nRead error: " << "\n";
+    catch (const exception&)
+    {
         error = true;
     }
-
     fin.close();
 
-    if (error) {
+    if (error)
+    {
         cout << "\nError: something went wrong while reading the file.\n\n";
         return;
     }
@@ -280,41 +131,46 @@ void get_from_file(Pipe& p, CS& s, bool& is_pipe, bool& is_cs) {
     cout << "\nReading from the file is complete.\n\n";
 }
 
-
 int main()
 {
     Pipe p;
     CS s;
-    bool pipe_create = false;
-    bool cs_create = false;
-    while (true) {
+    bool pipeCreated = false;
+    bool csCreated = false;
+
+    while (true)
+    {
         launching();
-        int user_choise = input_int(cin, "Enter a number to execute a command: ", 0, 7);
-        switch (user_choise) {
+        int choice = inputInt(cin, "Enter a number to execute a command: ", 0, 7);
+
+        switch (choice)
+        {
         case 0:
             return 0;
         case 1:
             cin >> p;
-            pipe_create = true;
+            pipeCreated = true;
+            cout << "\nPipe added with id = " << p.getId() << "\n\n";
             break;
         case 2:
             cin >> s;
-            cs_create = true;
+            csCreated = true;
+            cout << "\nCS added with id = " << s.getId() << "\n\n";
             break;
         case 3:
-            view_all(pipe_create, cs_create, p, s);
+            viewAll(pipeCreated, csCreated, p, s);
             break;
         case 4:
-            edit_pipe(pipe_create, p);
+            editPipe(pipeCreated, p);
             break;
         case 5:
-            edit_cs(cs_create, s);
+            editCS(csCreated, s);
             break;
         case 6:
-            save_to_file(p, s, pipe_create, cs_create);
+            saveToFile(p, s, pipeCreated, csCreated);
             break;
         case 7:
-            get_from_file(p, s, pipe_create, cs_create);
+            loadFromFile(p, s, pipeCreated, csCreated);
             break;
         }
     }

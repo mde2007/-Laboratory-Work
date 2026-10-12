@@ -139,7 +139,15 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Checks.cpp" />
+    <ClCompile Include="CS.cpp" />
     <ClCompile Include="MoskovskiyLaba.cpp" />
+    <ClCompile Include="pipe.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Checks.h" />
+    <ClInclude Include="CS.h" />
+    <ClInclude Include="pipe.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
