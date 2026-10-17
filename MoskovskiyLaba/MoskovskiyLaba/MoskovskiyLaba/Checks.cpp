@@ -17,6 +17,7 @@ std::string inputName(std::istream& in, const std::string& prompt)
         std::cout << prompt;
         std::getline(in >> std::ws, name);
     }
+    std::cerr << name << std::endl;
     return name;
 }
 
@@ -40,6 +41,7 @@ double inputPositiveDouble(std::istream& in, const std::string& prompt)
         else
         {
             in.ignore(1000, '\n');
+            std::cerr << x << std::endl;
             return x;
         }
     }
@@ -65,6 +67,7 @@ int inputInt(std::istream& in, const std::string& prompt, int lo, int hi)
         else
         {
             in.ignore(1000, '\n');
+            std::cerr << x << std::endl;
             return x;
         }
     }

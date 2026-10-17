@@ -4,6 +4,8 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include <chrono>
+#include <format>
 #include "Checks.h"
 #include "Pipe.h"
 #include "CS.h"
@@ -188,6 +190,41 @@ double unusedPercent(const CS& s)
     return 100.0 * (s.workshops - s.activeWorkshops) / s.workshops;
 }
 
+template<typename Obj>
+vector<int> SearchByName(const unordered_map<int, Obj>& items)
+{
+    string name = inputName(cin, "Enter the name: ");
+    return FindByFilter(items, [&](const Obj& o) {
+        return o.name == name;
+        });
+}
+
+vector<int> SearchPipesByRepair(const unordered_map<int, Pipe>& pipes)
+{
+    bool repair = inputInt(cin, "Find pipes: 1 - under repair (broken), 0 - working: ", 0, 1) == 1;
+    return FindByFilter(pipes, [&](const Pipe& p) {
+        return (!p.working) == repair;
+        });
+}
+
+bool matchPercent(double value, int percent, int cmp)
+{
+    if (cmp == 1) return value >= percent;
+    if (cmp == 2) return value <= percent;
+    return lround(value) == percent;
+}
+
+vector<int> SearchCSByUnusedPercent(const unordered_map<int, CS>& cs)
+{
+    cout << "\n1 - at least\n2 - at most\n3 - exactly (rounded to a whole percent)\n";
+    int cmp = inputInt(cin, "Comparison: ", 1, 3);
+    int percent = inputInt(cin, "Enter the percent of unused workshops (0-100): ", 0, 100);
+    return FindByFilter(cs, [&](const CS& s) {
+        return matchPercent(unusedPercent(s), percent, cmp);
+        });
+}
+
+
 void find_pipe(const unordered_map<int, Pipe>& pipes)
 {
     if (pipes.empty())
@@ -199,21 +236,7 @@ void find_pipe(const unordered_map<int, Pipe>& pipes)
     cout << "\nSearch pipes by:\n1 - name\n2 - under repair status\n";
     int mode = inputInt(cin, "Your choice: ", 1, 2);
 
-    vector<int> ids;
-    if (mode == 1)
-    {
-        string name = inputName(cin, "Enter the name: ");
-        ids = FindByFilter(pipes, [&](const Pipe& p) {
-            return p.name == name;
-            });
-    }
-    else
-    {
-        bool repair = inputInt(cin, "Find pipes: 1 - under repair (broken), 0 - working: ", 0, 1) == 1;
-        ids = FindByFilter(pipes, [&](const Pipe& p) {
-            return (!p.working) == repair;
-            });
-    }
+    vector<int> ids = (mode == 1) ? SearchByName(pipes) : SearchPipesByRepair(pipes);
     printFound(pipes, ids);
 }
 
@@ -228,26 +251,7 @@ void find_cs(const unordered_map<int, CS>& cs)
     cout << "\nSearch Compression stations by:\n1 - name\n2 - percent of unused workshops\n";
     int mode = inputInt(cin, "Your choice: ", 1, 2);
 
-    vector<int> ids;
-    if (mode == 1)
-    {
-        string name = inputName(cin, "Enter the name: ");
-        ids = FindByFilter(cs, [&](const CS& s) {
-            return s.name == name;
-            });
-    }
-    else
-    {
-        cout << "\n1 - at least\n2 - at most\n3 - exactly (rounded to a whole percent)\n";
-        int cmp = inputInt(cin, "Comparison: ", 1, 3);
-        int percent = inputInt(cin, "Enter the percent of unused workshops (0-100): ", 0, 100);
-        ids = FindByFilter(cs, [&](const CS& s) {
-            double u = unusedPercent(s);
-            if (cmp == 1) return u >= percent;
-            if (cmp == 2) return u <= percent;
-            return lround(u) == percent;
-            });
-    }
+    vector<int> ids = (mode == 1) ? SearchByName(cs) : SearchCSByUnusedPercent(cs);
     printFound(cs, ids);
 }
 
@@ -270,6 +274,12 @@ void find_object(const unordered_map<int, Pipe>& pipes, const unordered_map<int,
 
 int main()
 {
+    redirect_output_wrapper cerr_out(cerr);
+    string timestamp = std::format("{:%d_%m_%Y %H_%M_%OS}", chrono::system_clock::now());
+    ofstream logfile("log_" + timestamp + ".txt");
+    if (logfile)
+        cerr_out.redirect(logfile);
+
     unordered_map<int, Pipe> pipes;
     unordered_map<int, CS> cs;
 
