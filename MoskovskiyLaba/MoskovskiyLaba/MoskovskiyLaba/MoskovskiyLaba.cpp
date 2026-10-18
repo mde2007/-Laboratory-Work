@@ -77,87 +77,148 @@ void viewAll(const unordered_map<int, Pipe>& pipes,
     }
 }
 
-//void editPipe(const unordered_map<int, Pipe>& pipes)
-//{
-//    cout << "\n";
-//    if (pipes.empty())
-//        cout << "You haven't created a single pipe.\n";
-//    else
-//    {
-//        p.working = inputInt(cin, "Select the pipeline status, where 1 - working, 0 - broken: ", 0, 1) == 1;
-//        cout << "\n";
-//    }
-//}
-//
-//void editCS(const unordered_map<int, CS>& cs)
-//{
-//    cout << "\n";
-//    if (cs.empty())
-//        cout << "You haven't created a single Compression station\n";
-//    else
-//    {
-//        s.working = inputInt(cin, "Select the Compression station status, where 1 - working, 0 - broken: ", 0, 1) == 1;
-//        cout << "\n";
-//    }
-//}
-//
-//void saveToFile(const unordered_map<int, Pipe>& pipes, const unordered_map<int, CS>& cs)
-//{
-//    ofstream fout("output.txt");
-//    if (!fout.is_open())
-//    {
-//        cout << "\nError: could not open file output.txt\n\n";
-//        return;
-//    }
-//
-//    if (!pipes.empty()) fout << p;
-//    if (!cs.empty())  fout << s;
-//
-//    fout.close();
-//    cout << "\nWriting to the file is complete.\n\n";
-//}
-//
-//void loadFromFile(const unordered_map<int, Pipe>& pipes, const unordered_map<int, CS>& cs)
-//{
-//    ifstream fin("output.txt");
-//    if (!fin.is_open())
-//    {
-//        cout << "\nError: could not open file output.txt\n\n";
-//        return;
-//    }
-//
-//    bool error = false;
-//    try
-//    {
-//        while (fin.peek() != EOF)
-//        {
-//            char marker = fin.get();
-//
-//            if (marker == 'P')
-//            {
-//                fin >> p;
-//            }
-//            else if (marker == 'C')
-//            {
-//                fin >> s;
-//            }
-//        }
-//        if (fin.bad()) error = true;
-//    }
-//    catch (const exception&)
-//    {
-//        error = true;
-//    }
-//    fin.close();
-//
-//    if (error)
-//    {
-//        cout << "\nError: something went wrong while reading the file.\n\n";
-//        return;
-//    }
-//
-//    cout << "\nReading from the file is complete.\n\n";
-//}
+void editPipe(const int id, unordered_map<int, Pipe>& pipes)
+{
+    auto it = pipes.find(id);
+    if (it == pipes.end()) {
+        cout << "Pipe with id " << id << " not found.\n";
+        return;
+    }
+
+    Pipe& p = it->second;
+
+    cout << "Pipe with id=" << id
+        << "\nlenght=" << p.length
+        << "\ndiameter=" << p.diameter
+        << "\nstatus: " << (p.working ? "working" : "broken") << "\n";
+
+    p.working = !p.working;
+
+    cout << "Status changed: \n"
+        << (p.working ? "broken" : "working") << "\n";
+}
+
+void EditPipeMenu(unordered_map<int, Pipe>& pipes)
+{
+    cout << "\n";
+    if (pipes.empty()) {
+        cout << "There are no pipes creaeted.\n";
+        return;
+    }
+
+    int id = inputInt(cin, "Select pipe ID: ", 1, Pipe::MaxID);
+    editPipe(id, pipes);
+}
+
+void editCS(const int id, unordered_map<int, CS>& cs)
+{
+    auto it = cs.find(id);
+    if (it == cs.end()) {
+        cout << "CS with id " << id << " not found.\n";
+        return;
+    }
+
+    CS& s = it->second;
+
+    cout << "CS with id=" << id
+        << "\nname=" << s.name
+        << "\nworkshops=" << s.workshops
+        << "\nactive workshops=" << s.activeWorkshops
+        << "\nstatus: " << (s.working ? "working" : "broken") << "\n";
+
+    s.working = !s.working;
+
+    cout << "Status changed: \n"
+        << (s.working ? "working" : "broken") << "\n";
+}
+
+void EditCSMenu(unordered_map<int, CS>& cs)
+{
+    cout << "\n";
+    if (cs.empty()) {
+        cout << "There are no Compression stations created.\n";
+        return;
+    }
+
+    int id = inputInt(cin, "Select CS ID: ", 1, CS::MaxID);
+    editCS(id, cs);
+}
+
+void saveToFile(const unordered_map<int, Pipe>& pipes, const unordered_map<int, CS>& cs)
+{
+    ofstream fout("output.txt");
+    if (!fout.is_open())
+    {
+        cout << "\nError: could not open file output.txt\n\n";
+        return;
+    }
+
+    for (const auto& [id, p] : pipes)
+        fout << p;
+    for (const auto& [id, s] : cs)
+        fout << s;
+
+    cout << "\nWriting to the file is complete.\n\n";
+}
+
+void loadFromFile(unordered_map<int, Pipe>& pipes, unordered_map<int, CS>& cs)
+{
+    ifstream fin("output.txt");
+    if (!fin.is_open())
+    {
+        cout << "\nError: could not open file output.txt\n\n";
+        return;
+    }
+
+    pipes.clear();
+    cs.clear();
+
+    int maxPipeId = 0;
+    int maxCsId = 0;
+    bool error = false;
+
+    try
+    {
+        string marker;
+        while (getline(fin, marker))
+        {
+            if (marker == "P")
+            {
+                Pipe p;
+                fin >> p;
+                pipes.emplace(p.getId(), p);
+                maxPipeId = max(maxPipeId, p.getId());
+            }
+            else if (marker == "C")
+            {
+                CS s;
+                fin >> s;
+                cs.emplace(s.getId(), s);
+                maxCsId = max(maxCsId, s.getId());
+            }
+        }
+    }
+    catch (const exception&)
+    {
+        error = true;
+    }
+
+    if (error)
+    {
+        pipes.clear();
+        cs.clear();
+        maxPipeId = 0;
+        maxCsId = 0;
+        cout << "\nError: something went wrong while reading the file.\n\n";
+    }
+    else
+    {
+        cout << "\nReading from the file is complete.\n\n";
+    }
+
+    Pipe::MaxID = maxPipeId;
+    CS::MaxID = maxCsId;
+}
 
 template<typename Obj, typename Pred>
 vector<int> FindByFilter(const unordered_map<int, Obj>& items, Pred f)
@@ -301,18 +362,18 @@ int main()
         case 3:
             viewAll(pipes, cs);
             break;
-            //case 4:
-            //    editPipe(pipes);
-            //    break;
-            //case 5:
-            //    editCS(cs);
-            //    break;
-            //case 6:
-            //    saveToFile(pipes, cs);
-            //    break;
-            //case 7:
-            //    loadFromFile(pipes, cs);
-            //    break;
+        case 4:
+            EditPipeMenu(pipes);
+            break;
+        case 5:
+            EditCSMenu(cs);
+            break;
+        case 6:
+            saveToFile(pipes, cs);
+            break;
+        case 7:
+            loadFromFile(pipes, cs);
+            break;
         case 8:
             find_object(pipes, cs);
             break;

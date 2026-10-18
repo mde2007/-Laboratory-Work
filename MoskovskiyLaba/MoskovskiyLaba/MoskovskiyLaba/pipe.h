@@ -45,7 +45,9 @@ public:
 
     friend std::ofstream& operator << (std::ofstream& out, const Pipe& p)
     {
-        out << "P" << p.name << "\n"
+        out << "P\n"
+            << p.id << "\n"
+            << p.name << "\n"
             << p.length << "\n"
             << p.diameter << "\n"
             << p.working << "\n";
@@ -55,6 +57,9 @@ public:
     friend std::ifstream& operator >> (std::ifstream& in, Pipe& p)
     {
         std::string line;
+
+        if (!std::getline(in, line)) return in;
+        p.id = std::stoi(line);
 
         if (!std::getline(in, p.name)) return in;
 

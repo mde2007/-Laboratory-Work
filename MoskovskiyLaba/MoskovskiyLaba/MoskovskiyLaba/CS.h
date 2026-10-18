@@ -45,7 +45,9 @@ public:
 
     friend std::ofstream& operator << (std::ofstream& out, const CS& s)
     {
-        out << "C" << s.name << "\n"
+        out << "C\n"
+            << s.id << "\n"
+            << s.name << "\n"
             << s.workshops << "\n"
             << s.activeWorkshops << "\n"
             << s.working << "\n";
@@ -55,6 +57,9 @@ public:
     friend std::ifstream& operator >> (std::ifstream& in, CS& s)
     {
         std::string line;
+
+        if (!std::getline(in, line)) return in;
+        s.id = std::stoi(line);
 
         if (!std::getline(in, s.name)) return in;
 
