@@ -6,15 +6,12 @@
 #include <cmath>
 #include <chrono>
 #include <format>
-#include "Checks.h"
-#include "Pipe.h"
-#include "CS.h"
 #include <unordered_map>
+#include "Checks.h"
+#include "pipe.h"
+#include "CS.h"
 
 using namespace std;
-
-int Pipe::MaxID = 0;
-int CS::MaxID = 0;
 
 void launching()
 {
@@ -93,7 +90,7 @@ void editPipe(const int id, unordered_map<int, Pipe>& pipes)
     p.working = !p.working;
 
     cout << "Status changed: \n"
-        << (p.working ? "broken" : "working") << "\n";
+        << (p.working ? "working" : "broken") << "\n";
 }
 
 void EditPipeMenu(unordered_map<int, Pipe>& pipes)
@@ -184,10 +181,13 @@ void DeleteCSMenu(unordered_map<int, CS>& cs)
 
 void saveToFile(const unordered_map<int, Pipe>& pipes, const unordered_map<int, CS>& cs)
 {
-    ofstream fout("output.txt");
+    cout << "\n";
+    string filename = inputFileName(cin, "Enter the file name to save to: ");
+
+    ofstream fout(filename);
     if (!fout.is_open())
     {
-        cout << "\nError: could not open file output.txt\n\n";
+        cout << "\nError: could not open file " << filename << "\n\n";
         return;
     }
 
@@ -196,15 +196,18 @@ void saveToFile(const unordered_map<int, Pipe>& pipes, const unordered_map<int, 
     for (const auto& [id, s] : cs)
         fout << s;
 
-    cout << "\nWriting to the file is complete.\n\n";
+    cout << "\nWriting to the file " << filename << " is complete.\n\n";
 }
 
 void loadFromFile(unordered_map<int, Pipe>& pipes, unordered_map<int, CS>& cs)
 {
-    ifstream fin("output.txt");
+    cout << "\n";
+    string filename = inputFileName(cin, "Enter the file name to load from: ");
+
+    ifstream fin(filename);
     if (!fin.is_open())
     {
-        cout << "\nError: could not open file output.txt\n\n";
+        cout << "\nError: could not open file " << filename << "\n\n";
         return;
     }
 
@@ -251,7 +254,7 @@ void loadFromFile(unordered_map<int, Pipe>& pipes, unordered_map<int, CS>& cs)
     }
     else
     {
-        cout << "\nReading from the file is complete.\n\n";
+        cout << "\nReading from the file " << filename << " is complete.\n\n";
     }
 
     Pipe::MaxID = maxPipeId;
@@ -367,13 +370,13 @@ void find_object(unordered_map<int, Pipe>& pipes, unordered_map<int, CS>& cs)
     int user_choise = inputInt(cin, "Your choice: ", 1, 2);
     if (user_choise == 1) {
         find_pipe(pipes);
-        int pick = inputInt(cin,"1 - choose all, 2 - select by id: ", 1, 2);
+        int pick = inputInt(cin, "1 - choose all, 2 - select by id: ", 1, 2);
         if (pick == 1) {
             cout << "type here";
         }
         else {
             int id = inputInt(cin, "Select pipe ID: ", 1, Pipe::MaxID);
-            int comand = inputInt(cin, "1 - edit, 2 - delete", 1, 2);
+            int comand = inputInt(cin, "1 - edit, 2 - delete: ", 1, 2);
             if (comand == 2) {
                 deletePipe(id, pipes);
             }

@@ -1,5 +1,20 @@
 #include "Checks.h"
 
+redirect_output_wrapper::redirect_output_wrapper(std::ostream& src)
+    : stream(src), old_buf(src.rdbuf())
+{
+}
+
+redirect_output_wrapper::~redirect_output_wrapper()
+{
+    stream.rdbuf(old_buf);
+}
+
+void redirect_output_wrapper::redirect(std::ostream& dest)
+{
+    stream.rdbuf(dest.rdbuf());
+}
+
 void clearInput(std::istream& in)
 {
     in.clear();
@@ -17,6 +32,27 @@ std::string inputName(std::istream& in, const std::string& prompt)
         std::cout << prompt;
         std::getline(in >> std::ws, name);
     }
+    std::cerr << name << std::endl;
+    return name;
+}
+
+std::string inputFileName(std::istream& in, const std::string& prompt)
+{
+    const std::string forbidden = "\\/:*?\"<>|";
+    std::string name;
+    while (true)
+    {
+        std::cout << prompt;
+        std::getline(in >> std::ws, name);
+
+        if (name.empty())
+            std::cout << "Error, the file name must not be empty. Try again.\n";
+        else if (name.find_first_of(forbidden) != std::string::npos)
+            std::cout << "Error, the file name must not contain any of: " << forbidden << " Try again.\n";
+        else
+            break;
+    }
+
     std::cerr << name << std::endl;
     return name;
 }
