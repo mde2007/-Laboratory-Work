@@ -22,13 +22,9 @@ void launching()
     cout << "1 - Add pipe\n";
     cout << "2 - Add Compression station\n";
     cout << "3 - View all items\n";
-    cout << "4 - Edit pipe\n";
-    cout << "5 - Edit Compression station\n";
-    cout << "6 - Delete pipe\n";
-    cout << "7 - Delete Compression station\n";
-    cout << "8 - Save to file\n";
-    cout << "9 - Download from file\n";
-    cout << "10 - Find object\n";
+    cout << "4 - Find object\n";
+    cout << "5 - Save to file\n";
+    cout << "6 - Download from file\n";
     cout << "0 - Exit\n";
 }
 
@@ -358,7 +354,7 @@ void find_cs(const unordered_map<int, CS>& cs)
     printFound(cs, ids);
 }
 
-void find_object(const unordered_map<int, Pipe>& pipes, const unordered_map<int, CS>& cs)
+void find_object(unordered_map<int, Pipe>& pipes, unordered_map<int, CS>& cs)
 {
     cout << "\n";
     if (pipes.empty() && cs.empty())
@@ -369,8 +365,23 @@ void find_object(const unordered_map<int, Pipe>& pipes, const unordered_map<int,
 
     cout << "Chose, what you want to find:\n1 - pipe\n2 - CS\n";
     int user_choise = inputInt(cin, "Your choice: ", 1, 2);
-    if (user_choise == 1)
+    if (user_choise == 1) {
         find_pipe(pipes);
+        int pick = inputInt(cin,"1 - choose all, 2 - select by id: ", 1, 2);
+        if (pick == 1) {
+            cout << "type here";
+        }
+        else {
+            int id = inputInt(cin, "Select pipe ID: ", 1, Pipe::MaxID);
+            int comand = inputInt(cin, "1 - edit, 2 - delete", 1, 2);
+            if (comand == 2) {
+                deletePipe(id, pipes);
+            }
+            else {
+                editPipe(id, pipes);
+            }
+        }
+    }
     else
         find_cs(cs);
 }
@@ -389,7 +400,7 @@ int main()
     while (true)
     {
         launching();
-        int choice = inputInt(cin, "Enter a number to execute a command: ", 0, 10);
+        int choice = inputInt(cin, "Enter a number to execute a command: ", 0, 6);
 
         switch (choice)
         {
@@ -405,25 +416,13 @@ int main()
             viewAll(pipes, cs);
             break;
         case 4:
-            EditPipeMenu(pipes);
+            find_object(pipes, cs);
             break;
         case 5:
-            EditCSMenu(cs);
-            break;
-        case 6:
-            DeletePipeMenu(pipes);
-            break;
-        case 7:
-            DeleteCSMenu(cs);
-            break;
-        case 8:
             saveToFile(pipes, cs);
             break;
-        case 9:
+        case 6:
             loadFromFile(pipes, cs);
-            break;
-        case 10:
-            find_object(pipes, cs);
             break;
         }
     }
