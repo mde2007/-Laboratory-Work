@@ -327,12 +327,12 @@ vector<int> SearchCSByUnusedPercent(const unordered_map<int, CS>& cs)
 }
 
 
-void find_pipe(const unordered_map<int, Pipe>& pipes)
+vector<int> find_pipe(const unordered_map<int, Pipe>& pipes)
 {
     if (pipes.empty())
     {
         cout << "\nYou haven't created a single pipe.\n\n";
-        return;
+        return {};
     }
 
     cout << "\nSearch pipes by:\n1 - name\n2 - under repair status\n";
@@ -340,14 +340,15 @@ void find_pipe(const unordered_map<int, Pipe>& pipes)
 
     vector<int> ids = (mode == 1) ? SearchByName(pipes) : SearchPipesByRepair(pipes);
     printFound(pipes, ids);
+    return ids;
 }
 
-void find_cs(const unordered_map<int, CS>& cs)
+vector<int> find_cs(const unordered_map<int, CS>& cs)
 {
     if (cs.empty())
     {
         cout << "\nYou haven't created a single Compression station.\n\n";
-        return;
+        return {};
     }
 
     cout << "\nSearch Compression stations by:\n1 - name\n2 - percent of unused workshops\n";
@@ -355,6 +356,7 @@ void find_cs(const unordered_map<int, CS>& cs)
 
     vector<int> ids = (mode == 1) ? SearchByName(cs) : SearchCSByUnusedPercent(cs);
     printFound(cs, ids);
+    return ids;
 }
 
 void find_object(unordered_map<int, Pipe>& pipes, unordered_map<int, CS>& cs)
@@ -369,10 +371,12 @@ void find_object(unordered_map<int, Pipe>& pipes, unordered_map<int, CS>& cs)
     cout << "Chose, what you want to find:\n1 - pipe\n2 - CS\n";
     int user_choise = inputInt(cin, "Your choice: ", 1, 2);
     if (user_choise == 1) {
-        find_pipe(pipes);
+        vector<int> ids = find_pipe(pipes);
         int pick = inputInt(cin, "1 - choose all, 2 - select by id: ", 1, 2);
         if (pick == 1) {
-            cout << "type here";
+            int comand = inputInt(cin, "1 - edit, 2 - delete: ", 1, 2);
+            for (int id : ids)
+                (comand == 1) ? editPipe(id, pipes) : deletePipe(id, pipes);
         }
         else {
             int id = inputInt(cin, "Select pipe ID: ", 1, Pipe::MaxID);
