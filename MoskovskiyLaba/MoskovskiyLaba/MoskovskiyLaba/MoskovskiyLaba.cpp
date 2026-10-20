@@ -105,27 +105,27 @@ void EditPipeMenu(unordered_map<int, Pipe>& pipes)
     editPipe(id, pipes);
 }
 
-//void editCS(const int id, unordered_map<int, CS>& cs)
-//{
-//    auto it = cs.find(id);
-//    if (it == cs.end()) {
-//        cout << "CS with id " << id << " not found.\n";
-//        return;
-//    }
-//
-//    CS& s = it->second;
-//
-//    cout << "CS with id=" << id
-//        << "\nname=" << s.name
-//        << "\nworkshops=" << s.workshops
-//        << "\nactive workshops=" << s.activeWorkshops
-//        << "\nstatus: " << (s.working ? "working" : "broken") << "\n";
-//
-//    s.working = !s.working;
-//
-//    cout << "Status changed: \n"
-//        << (s.working ? "working" : "broken") << "\n";
-//}
+void editCS(const int id, unordered_map<int, CS>& cs)
+{
+    auto it = cs.find(id);
+    if (it == cs.end()) {
+        cout << "CS with id " << id << " not found.\n";
+        return;
+    }
+
+    CS& s = it->second;
+
+    s.activeWorkshops = inputInt(cin, "Enter the Compression station number of active workshops: ", 0, s.workshops);
+
+    cout << "CS with id=" << id
+        << "\nname= " << s.name
+        << "\nworkshops= " << s.workshops
+        << "\nactive workshops= " << s.activeWorkshops
+        << "\nstatus: " << s.status << "\n";
+
+
+    return;
+}
 
 void EditCSMenu(unordered_map<int, CS>& cs)
 {
