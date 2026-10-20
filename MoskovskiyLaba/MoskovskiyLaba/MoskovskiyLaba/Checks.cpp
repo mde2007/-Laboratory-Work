@@ -108,3 +108,37 @@ int inputInt(std::istream& in, const std::string& prompt, int lo, int hi)
         }
     }
 }
+char inputCSStatus(std::istream& in, const std::string& prompt)
+{
+    while (true)
+    {
+        std::cout << prompt;
+        char value{};
+        in >> value;
+
+        if (in.fail())
+        {
+            std::cout << "Invalid input. Enter a, b, c or d.\n";
+            clearInput(in);
+            continue;
+        }
+
+        if (in.peek() != '\n')
+        {
+            std::cout << "Enter exactly one character: a, b, c or d.\n";
+            clearInput(in);
+            continue;
+        }
+
+        in.ignore(1000, '\n');
+
+        if (value < 'a' || value > 'd')
+        {
+            std::cout << "Invalid status. Allowed values are a, b, c, d.\n";
+            continue;
+        }
+
+        std::cerr << value << std::endl;
+        return value;
+    }
+}

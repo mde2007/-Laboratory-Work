@@ -17,3 +17,4 @@ std::string inputName(std::istream& in, const std::string& prompt);
 std::string inputFileName(std::istream& in, const std::string& prompt);
 double inputPositiveDouble(std::istream& in, const std::string& prompt);
 int inputInt(std::istream& in, const std::string& prompt, int lo, int hi);
+char inputCSStatus(std::istream& in, const std::string& prompt);

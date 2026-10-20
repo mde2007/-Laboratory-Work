@@ -105,27 +105,27 @@ void EditPipeMenu(unordered_map<int, Pipe>& pipes)
     editPipe(id, pipes);
 }
 
-void editCS(const int id, unordered_map<int, CS>& cs)
-{
-    auto it = cs.find(id);
-    if (it == cs.end()) {
-        cout << "CS with id " << id << " not found.\n";
-        return;
-    }
-
-    CS& s = it->second;
-
-    cout << "CS with id=" << id
-        << "\nname=" << s.name
-        << "\nworkshops=" << s.workshops
-        << "\nactive workshops=" << s.activeWorkshops
-        << "\nstatus: " << (s.working ? "working" : "broken") << "\n";
-
-    s.working = !s.working;
-
-    cout << "Status changed: \n"
-        << (s.working ? "working" : "broken") << "\n";
-}
+//void editCS(const int id, unordered_map<int, CS>& cs)
+//{
+//    auto it = cs.find(id);
+//    if (it == cs.end()) {
+//        cout << "CS with id " << id << " not found.\n";
+//        return;
+//    }
+//
+//    CS& s = it->second;
+//
+//    cout << "CS with id=" << id
+//        << "\nname=" << s.name
+//        << "\nworkshops=" << s.workshops
+//        << "\nactive workshops=" << s.activeWorkshops
+//        << "\nstatus: " << (s.working ? "working" : "broken") << "\n";
+//
+//    s.working = !s.working;
+//
+//    cout << "Status changed: \n"
+//        << (s.working ? "working" : "broken") << "\n";
+//}
 
 void EditCSMenu(unordered_map<int, CS>& cs)
 {
@@ -381,16 +381,24 @@ void find_object(unordered_map<int, Pipe>& pipes, unordered_map<int, CS>& cs)
         else {
             int id = inputInt(cin, "Select pipe ID: ", 1, Pipe::MaxID);
             int comand = inputInt(cin, "1 - edit, 2 - delete: ", 1, 2);
-            if (comand == 2) {
-                deletePipe(id, pipes);
-            }
-            else {
-                editPipe(id, pipes);
+            (comand == 2) ? deletePipe(id, pipes): editPipe(id, pipes);
             }
         }
-    }
     else
-        find_cs(cs);
+    {
+        vector<int> ids = find_cs(cs);
+        int pick = inputInt(cin, "1 - choose all, 2 - select by id: ", 1, 2);
+        if (pick == 1) {
+            int comand = inputInt(cin, "1 - edit, 2 - delete: ", 1, 2);
+            for (int id : ids)
+                (comand == 1) ? editCS(id, cs) : deleteCS(id, cs);
+        }
+        else {
+            int id = inputInt(cin, "Select pipe ID: ", 1, Pipe::MaxID);
+            int comand = inputInt(cin, "1 - edit, 2 - delete: ", 1, 2);
+            (comand == 2) ? deleteCS(id, cs) : editCS(id, cs);
+        }
+    }
 }
 
 int main()
