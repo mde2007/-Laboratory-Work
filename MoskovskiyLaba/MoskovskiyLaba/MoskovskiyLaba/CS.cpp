@@ -5,6 +5,7 @@
 int CS::MaxID = 0;
 
 CS::CS() : id(++MaxID) {}
+CS::CS(int id_) : id(id_) {}
 
 int CS::getId() const { return id; }
 
@@ -38,12 +39,10 @@ std::ofstream& operator<<(std::ofstream& out, const CS& s)
     return out;
 }
 
+
 std::ifstream& operator>>(std::ifstream& in, CS& s)
 {
     std::string line;
-
-    if (!std::getline(in, line)) return in;
-    s.id = std::stoi(line);
 
     if (!std::getline(in, s.name)) return in;
 

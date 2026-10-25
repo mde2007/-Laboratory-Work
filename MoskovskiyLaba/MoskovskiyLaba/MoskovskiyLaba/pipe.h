@@ -14,7 +14,8 @@ public:
     float  diameter = 0;
     bool   working = true;
 
-    Pipe();
+    Pipe();                  
+    explicit Pipe(int id);   
 
     int getId() const;
     void ToggleStatus();

@@ -6,6 +6,7 @@
 #include <cmath>
 #include <chrono>
 #include <format>
+#include <stdexcept>
 #include <unordered_map>
 #include "Checks.h"
 #include "pipe.h"
@@ -105,7 +106,7 @@ void EditPipeMenu(unordered_map<int, Pipe>& pipes)
     editPipe(id, pipes);
 }
 
-void editCS(const int id, unordered_map<int, CS>& cs)
+void editCS(const int id, unordered_map<int, CS>& cs, int percent)
 {
     auto it = cs.find(id);
     if (it == cs.end()) {
@@ -114,17 +115,14 @@ void editCS(const int id, unordered_map<int, CS>& cs)
     }
 
     CS& s = it->second;
-
-    s.activeWorkshops = inputInt(cin, "Enter the Compression station number of active workshops: ", 0, s.workshops);
+    s.activeWorkshops = static_cast<int>(lround(s.workshops * percent / 100.0));
 
     cout << "CS with id=" << id
         << "\nname= " << s.name
         << "\nworkshops= " << s.workshops
         << "\nactive workshops= " << s.activeWorkshops
-        << "\nstatus: " << s.status << "\n";
-
-
-    return;
+        << " (" << percent << "% requested)"
+        << "\nstatus: " << s.status << "\n\n";
 }
 
 void EditCSMenu(unordered_map<int, CS>& cs)
@@ -136,7 +134,8 @@ void EditCSMenu(unordered_map<int, CS>& cs)
     }
 
     int id = inputInt(cin, "Select CS ID: ", 1, CS::MaxID);
-    editCS(id, cs);
+    int percent = inputInt(cin, "Enter the percent of active workshops (0-100): ", 0, 100);
+    editCS(id, cs, percent);
 }
 
 void deletePipe(const int id, unordered_map<int, Pipe>& pipes)
@@ -225,17 +224,31 @@ void loadFromFile(unordered_map<int, Pipe>& pipes, unordered_map<int, CS>& cs)
         {
             if (marker == "P")
             {
-                Pipe p;
+                string line;
+                if (!getline(fin, line)) throw runtime_error("Unexpected end of file");
+                int id = stoi(line);
+                if (id <= 0) throw runtime_error("Invalid pipe id");
+
+                Pipe p(id);
                 fin >> p;
-                pipes.emplace(p.getId(), p);
-                maxPipeId = max(maxPipeId, p.getId());
+                if (!fin) throw runtime_error("Unexpected end of file");
+                if (!pipes.emplace(id, p).second)
+                    throw runtime_error("Duplicate pipe id");
+                maxPipeId = max(maxPipeId, id);
             }
             else if (marker == "C")
             {
-                CS s;
+                string line;
+                if (!getline(fin, line)) throw runtime_error("Unexpected end of file");
+                int id = stoi(line);
+                if (id <= 0) throw runtime_error("Invalid CS id");
+
+                CS s(id);  
                 fin >> s;
-                cs.emplace(s.getId(), s);
-                maxCsId = max(maxCsId, s.getId());
+                if (!fin) throw runtime_error("Unexpected end of file");
+                if (!cs.emplace(id, s).second)
+                    throw runtime_error("Duplicate CS id");
+                maxCsId = max(maxCsId, id);
             }
         }
     }
@@ -286,10 +299,10 @@ void printFound(const unordered_map<int, Obj>& items, const vector<int>& ids)
         cout << items.at(id);
 }
 
-double unusedPercent(const CS& s)
+double activePercent(const CS& s)
 {
     if (s.workshops == 0) return 0.0;
-    return 100.0 * (s.workshops - s.activeWorkshops) / s.workshops;
+    return 100.0 * s.activeWorkshops / s.workshops;
 }
 
 template<typename Obj>
@@ -309,20 +322,11 @@ vector<int> SearchPipesByRepair(const unordered_map<int, Pipe>& pipes)
         });
 }
 
-bool matchPercent(double value, int percent, int cmp)
+vector<int> SearchCSByActivePercent(const unordered_map<int, CS>& cs)
 {
-    if (cmp == 1) return value >= percent;
-    if (cmp == 2) return value <= percent;
-    return lround(value) == percent;
-}
-
-vector<int> SearchCSByUnusedPercent(const unordered_map<int, CS>& cs)
-{
-    cout << "\n1 - at least\n2 - at most\n3 - exactly (rounded to a whole percent)\n";
-    int cmp = inputInt(cin, "Comparison: ", 1, 3);
-    int percent = inputInt(cin, "Enter the percent of unused workshops (0-100): ", 0, 100);
+    int percent = inputInt(cin, "Enter the percent of working workshops (0-100): ", 0, 100);
     return FindByFilter(cs, [&](const CS& s) {
-        return matchPercent(unusedPercent(s), percent, cmp);
+        return activePercent(s) >= percent;
         });
 }
 
@@ -351,10 +355,10 @@ vector<int> find_cs(const unordered_map<int, CS>& cs)
         return {};
     }
 
-    cout << "\nSearch Compression stations by:\n1 - name\n2 - percent of unused workshops\n";
+    cout << "\nSearch Compression stations by:\n1 - name\n2 - percent of working workshops\n";
     int mode = inputInt(cin, "Your choice: ", 1, 2);
 
-    vector<int> ids = (mode == 1) ? SearchByName(cs) : SearchCSByUnusedPercent(cs);
+    vector<int> ids = (mode == 1) ? SearchByName(cs) : SearchCSByActivePercent(cs);
     printFound(cs, ids);
     return ids;
 }
@@ -396,13 +400,25 @@ void find_object(unordered_map<int, Pipe>& pipes, unordered_map<int, CS>& cs)
             int pick = inputInt(cin, "1 - choose all, 2 - select by id: ", 1, 2);
             if (pick == 1) {
                 int comand = inputInt(cin, "1 - edit, 2 - delete: ", 1, 2);
-                for (int id : ids)
-                    (comand == 1) ? editCS(id, cs) : deleteCS(id, cs);
+                if (comand == 1) {
+                    int percent = inputInt(cin, "Enter the percent of active workshops (0-100): ", 0, 100);
+                    for (int id : ids)
+                        editCS(id, cs, percent);
+                }
+                else {
+                    for (int id : ids)
+                        deleteCS(id, cs);
+                }
             }
             else {
-                int id = inputInt(cin, "Select pipe ID: ", 1, Pipe::MaxID);
+                int id = inputInt(cin, "Select CS ID: ", 1, CS::MaxID);
                 int comand = inputInt(cin, "1 - edit, 2 - delete: ", 1, 2);
-                (comand == 2) ? deleteCS(id, cs) : editCS(id, cs);
+                if (comand == 2)
+                    deleteCS(id, cs);
+                else {
+                    int percent = inputInt(cin, "Enter the percent of active workshops (0-100): ", 0, 100);
+                    editCS(id, cs, percent);
+                }
             }
         }
         else {

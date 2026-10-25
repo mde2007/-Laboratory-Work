@@ -14,7 +14,8 @@ public:
     int activeWorkshops = 0;
     char status = 'a';
 
-    CS();
+    CS();                  
+    explicit CS(int id);   
 
     int getId() const;
     void ToggleStatus();
