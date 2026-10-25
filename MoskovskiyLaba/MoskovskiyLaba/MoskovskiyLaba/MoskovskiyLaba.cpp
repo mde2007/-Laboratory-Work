@@ -363,6 +363,50 @@ vector<int> find_cs(const unordered_map<int, CS>& cs)
     return ids;
 }
 
+int inputPercent()
+{
+    return inputInt(cin, "Enter the percent of active workshops (0-100): ", 0, 100);
+}
+
+vector<int> chooseTargets(const vector<int>& found, int maxId, const string& idPrompt)
+{
+    int pick = inputInt(cin, "1 - choose all, 2 - select by id: ", 1, 2);
+    if (pick == 1)
+        return found;
+    return { inputInt(cin, idPrompt, 1, maxId) };
+}
+
+int inputEditOrDelete()
+{
+    return inputInt(cin, "1 - edit, 2 - delete: ", 1, 2);
+}
+
+void batchPipes(unordered_map<int, Pipe>& pipes)
+{
+    vector<int> ids = find_pipe(pipes);
+    if (ids.empty()) return;
+
+    vector<int> targets = chooseTargets(ids, Pipe::MaxID, "Select pipe ID: ");
+    int cmd = inputEditOrDelete();
+    for (int id : targets)
+        cmd == 1 ? editPipe(id, pipes) : deletePipe(id, pipes);
+}
+
+void batchCS(unordered_map<int, CS>& cs)
+{
+    vector<int> ids = find_cs(cs);
+    if (ids.empty()) return;
+
+    vector<int> targets = chooseTargets(ids, CS::MaxID, "Select CS ID: ");
+    if (inputEditOrDelete() == 1)
+    {
+        int percent = inputPercent();
+        for (int id : targets) editCS(id, cs, percent);
+    }
+    else
+        for (int id : targets) deleteCS(id, cs);
+}
+
 void find_object(unordered_map<int, Pipe>& pipes, unordered_map<int, CS>& cs)
 {
     cout << "\n";
@@ -371,60 +415,11 @@ void find_object(unordered_map<int, Pipe>& pipes, unordered_map<int, CS>& cs)
         cout << "You haven't created a single component\n\n";
         return;
     }
-
     cout << "Chose, what you want to find:\n1 - pipe\n2 - CS\n";
-    int user_choise = inputInt(cin, "Your choice: ", 1, 2);
-    if (user_choise == 1) {
-        vector<int> ids = find_pipe(pipes);
-        if (!ids.empty()) {
-            int pick = inputInt(cin, "1 - choose all, 2 - select by id: ", 1, 2);
-            if (pick == 1) {
-                int comand = inputInt(cin, "1 - edit, 2 - delete: ", 1, 2);
-                for (int id : ids)
-                    (comand == 1) ? editPipe(id, pipes) : deletePipe(id, pipes);
-            }
-            else {
-                int id = inputInt(cin, "Select pipe ID: ", 1, Pipe::MaxID);
-                int comand = inputInt(cin, "1 - edit, 2 - delete: ", 1, 2);
-                (comand == 2) ? deletePipe(id, pipes) : editPipe(id, pipes);
-            }
-        }
-        else {
-            return;
-        }
-    }
+    if (inputInt(cin, "Your choice: ", 1, 2) == 1)
+        batchPipes(pipes);
     else
-    {
-        vector<int> ids = find_cs(cs);
-        if (!ids.empty()) {
-            int pick = inputInt(cin, "1 - choose all, 2 - select by id: ", 1, 2);
-            if (pick == 1) {
-                int comand = inputInt(cin, "1 - edit, 2 - delete: ", 1, 2);
-                if (comand == 1) {
-                    int percent = inputInt(cin, "Enter the percent of active workshops (0-100): ", 0, 100);
-                    for (int id : ids)
-                        editCS(id, cs, percent);
-                }
-                else {
-                    for (int id : ids)
-                        deleteCS(id, cs);
-                }
-            }
-            else {
-                int id = inputInt(cin, "Select CS ID: ", 1, CS::MaxID);
-                int comand = inputInt(cin, "1 - edit, 2 - delete: ", 1, 2);
-                if (comand == 2)
-                    deleteCS(id, cs);
-                else {
-                    int percent = inputInt(cin, "Enter the percent of active workshops (0-100): ", 0, 100);
-                    editCS(id, cs, percent);
-                }
-            }
-        }
-        else {
-            return;
-        }
-    }
+        batchCS(cs);
 }
 
 int main()
