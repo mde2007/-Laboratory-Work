@@ -10,7 +10,15 @@ int Pipe::getId() const { return id; }
 
 void Pipe::ToggleStatus() { working = !working; }
 
-std::ostream& operator << (std::ostream& out, const Pipe& p)
+int Pipe::getMaxID() { return MaxID; }
+void Pipe::setMaxID(int value) { MaxID = value; }
+
+const std::string& Pipe::getName() const { return name; }
+double Pipe::getLength() const { return length; }
+float Pipe::getDiameter() const { return diameter; }
+bool Pipe::isWorking() const { return working; }
+
+std::ostream& operator<<(std::ostream& out, const Pipe& p)
 {
     out << "The pipeline:" << std::endl;
     out << "Id:       " << p.id << std::endl;
@@ -21,18 +29,18 @@ std::ostream& operator << (std::ostream& out, const Pipe& p)
     return out;
 }
 
-std::istream& operator >> (std::istream& in, Pipe& p)
+std::istream& operator>>(std::istream& in, Pipe& p)
 {
     std::cout << "\n";
     p.name = inputName(in, "Enter the pipeline Name: ");
     p.length = inputPositiveDouble(in, "Enter the pipeline length in km: ");
     p.diameter = static_cast<float>(inputPositiveDouble(in, "Enter the pipeline diameter in mm: "));
-    p.working = inputInt(in, "Select the pipeline status, where 1 - working, 0 - broken: ", 0, 1) == 1;
+    p.working = inputNumber<int>(in, "Select the pipeline status, where 1 - working, 0 - broken: ", 0, 1) == 1;
     std::cout << "\n";
     return in;
 }
 
-std::ofstream& operator << (std::ofstream& out, const Pipe& p)
+std::ofstream& operator<<(std::ofstream& out, const Pipe& p)
 {
     out << "P\n"
         << p.id << "\n"
@@ -43,7 +51,7 @@ std::ofstream& operator << (std::ofstream& out, const Pipe& p)
     return out;
 }
 
-std::ifstream& operator >> (std::ifstream& in, Pipe& p)
+std::ifstream& operator>>(std::ifstream& in, Pipe& p)
 {
     std::string line;
 

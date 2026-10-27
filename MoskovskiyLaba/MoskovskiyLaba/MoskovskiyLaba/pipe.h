@@ -6,7 +6,7 @@
 class Pipe
 {
     int id;
-public:
+
     static int MaxID;
 
     std::string name;
@@ -14,14 +14,23 @@ public:
     float  diameter = 0;
     bool   working = true;
 
-    Pipe();                  
-    explicit Pipe(int id);   
+public:
+    Pipe();
+    explicit Pipe(int id);
 
     int getId() const;
     void ToggleStatus();
 
-    friend std::ostream& operator << (std::ostream& out, const Pipe& p);
-    friend std::istream& operator >> (std::istream& in, Pipe& p);
-    friend std::ofstream& operator << (std::ofstream& out, const Pipe& p);
-    friend std::ifstream& operator >> (std::ifstream& in, Pipe& p);
+    static int getMaxID();
+    static void setMaxID(int value);
+
+    const std::string& getName() const;
+    double getLength() const;
+    float getDiameter() const;
+    bool isWorking() const;
+
+    friend std::ostream& operator<<(std::ostream& out, const Pipe& p);
+    friend std::istream& operator>>(std::istream& in, Pipe& p);
+    friend std::ofstream& operator<<(std::ofstream& out, const Pipe& p);
+    friend std::ifstream& operator>>(std::ifstream& in, Pipe& p);
 };

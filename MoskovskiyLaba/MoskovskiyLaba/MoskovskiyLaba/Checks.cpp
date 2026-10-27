@@ -29,7 +29,7 @@ std::string inputName(std::istream& in, const std::string& prompt)
     while (name.empty())
     {
         std::cout << "Error, the name must not be empty. Try again.\n";
-        std::cout << prompt;
+        std::cout << prompt;    
         std::getline(in >> std::ws, name);
     }
     std::cerr << name << std::endl;
@@ -80,65 +80,5 @@ double inputPositiveDouble(std::istream& in, const std::string& prompt)
             std::cerr << x << std::endl;
             return x;
         }
-    }
-}
-
-int inputInt(std::istream& in, const std::string& prompt, int lo, int hi)
-{
-    int x;
-    while (true)
-    {
-        std::cout << prompt;
-        in >> x;
-        if (in.fail() || in.peek() != '\n')
-        {
-            std::cout << "Error, the input doesn't match the type. Try again.\n";
-            clearInput(in);
-        }
-        else if (x < lo || x > hi)
-        {
-            std::cout << "Error, the number must be from " << lo << " to " << hi << ". Try again.\n";
-            in.ignore(1000, '\n');
-        }
-        else
-        {
-            in.ignore(1000, '\n');
-            std::cerr << x << std::endl;
-            return x;
-        }
-    }
-}
-char inputCSStatus(std::istream& in, const std::string& prompt)
-{
-    while (true)
-    {
-        std::cout << prompt;
-        char value{};
-        in >> value;
-
-        if (in.fail())
-        {
-            std::cout << "Invalid input. Enter a, b, c or d.\n";
-            clearInput(in);
-            continue;
-        }
-
-        if (in.peek() != '\n')
-        {
-            std::cout << "Enter exactly one character: a, b, c or d.\n";
-            clearInput(in);
-            continue;
-        }
-
-        in.ignore(1000, '\n');
-
-        if (value < 'a' || value > 'd')
-        {
-            std::cout << "Invalid status. Allowed values are a, b, c, d.\n";
-            continue;
-        }
-
-        std::cerr << value << std::endl;
-        return value;
     }
 }

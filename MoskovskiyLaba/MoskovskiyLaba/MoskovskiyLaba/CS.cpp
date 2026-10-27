@@ -9,6 +9,16 @@ CS::CS(int id_) : id(id_) {}
 
 int CS::getId() const { return id; }
 
+int CS::getMaxID() { return MaxID; }
+void CS::setMaxID(int value) { MaxID = value; }
+
+const std::string& CS::getName() const { return name; }
+int CS::getWorkshops() const { return workshops; }
+int CS::getActiveWorkshops() const { return activeWorkshops; }
+char CS::getStatus() const { return status; }
+
+void CS::setActiveWorkshops(int value) { activeWorkshops = value; }
+
 std::ostream& operator<<(std::ostream& out, const CS& s)
 {
     out << "The Compression station:\n"
@@ -24,10 +34,13 @@ std::istream& operator>>(std::istream& in, CS& s)
 {
     std::cout << "\n";
     s.name = inputName(in, "Enter the Compression station Name: ");
-    s.workshops = inputInt(in, "Enter the Compression station number of workshops: ", 1, 1000);
-    s.activeWorkshops = inputInt(in, "Enter the Compression station number of active workshops: ", 0, s.workshops);
-
-    s.status = inputCSStatus(in, "Enter the Compression station status (a, b, c, d): ");
+    s.workshops = inputNumber<int>(in, "Enter the Compression station number of workshops: ", 1, 1000);
+    s.activeWorkshops = inputNumber<int>(in, "Enter the Compression station number of active workshops: ", 0, s.workshops);
+    s.status = inputNumber<char>(
+        in,
+        "Enter the Compression station status (a, b, c, d): ",
+        'a', 'd'
+    );
     return in;
 }
 
@@ -38,7 +51,6 @@ std::ofstream& operator<<(std::ofstream& out, const CS& s)
         << s.status << '\n';
     return out;
 }
-
 
 std::ifstream& operator>>(std::ifstream& in, CS& s)
 {

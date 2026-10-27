@@ -84,26 +84,14 @@ void editPipe(const int id, unordered_map<int, Pipe>& pipes)
     Pipe& p = it->second;
 
     cout << "Pipe with id=" << id
-        << "\nlenght=" << p.length
-        << "\ndiameter=" << p.diameter
-        << "\nstatus: " << (p.working ? "working" : "broken") << "\n";
+        << "\nlenght=" << p.getLength()
+        << "\ndiameter=" << p.getDiameter()
+        << "\nstatus: " << (p.isWorking() ? "working" : "broken") << "\n";
 
-    p.working = !p.working;
+    p.ToggleStatus();
 
     cout << "Status changed: \n"
-        << (p.working ? "working" : "broken") << "\n";
-}
-
-void EditPipeMenu(unordered_map<int, Pipe>& pipes)
-{
-    cout << "\n";
-    if (pipes.empty()) {
-        cout << "There are no pipes creaeted.\n";
-        return;
-    }
-
-    int id = inputInt(cin, "Select pipe ID: ", 1, Pipe::MaxID);
-    editPipe(id, pipes);
+        << (p.isWorking() ? "working" : "broken") << "\n";
 }
 
 void editCS(const int id, unordered_map<int, CS>& cs, int percent)
@@ -115,27 +103,14 @@ void editCS(const int id, unordered_map<int, CS>& cs, int percent)
     }
 
     CS& s = it->second;
-    s.activeWorkshops = static_cast<int>(lround(s.workshops * percent / 100.0));
+    s.setActiveWorkshops(static_cast<int>(lround(s.getWorkshops() * percent / 100.0)));
 
     cout << "CS with id=" << id
-        << "\nname= " << s.name
-        << "\nworkshops= " << s.workshops
-        << "\nactive workshops= " << s.activeWorkshops
+        << "\nname= " << s.getName()
+        << "\nworkshops= " << s.getWorkshops()
+        << "\nactive workshops= " << s.getActiveWorkshops()
         << " (" << percent << "% requested)"
-        << "\nstatus: " << s.status << "\n\n";
-}
-
-void EditCSMenu(unordered_map<int, CS>& cs)
-{
-    cout << "\n";
-    if (cs.empty()) {
-        cout << "There are no Compression stations created.\n";
-        return;
-    }
-
-    int id = inputInt(cin, "Select CS ID: ", 1, CS::MaxID);
-    int percent = inputInt(cin, "Enter the percent of active workshops (0-100): ", 0, 100);
-    editCS(id, cs, percent);
+        << "\nstatus: " << s.getStatus() << "\n\n";
 }
 
 void deletePipe(const int id, unordered_map<int, Pipe>& pipes)
@@ -146,36 +121,12 @@ void deletePipe(const int id, unordered_map<int, Pipe>& pipes)
         cout << "Pipe with id " << id << " deleted.\n";
 }
 
-void DeletePipeMenu(unordered_map<int, Pipe>& pipes)
-{
-    cout << "\n";
-    if (pipes.empty()) {
-        cout << "There are no pipes created.\n";
-        return;
-    }
-
-    int id = inputInt(cin, "Select pipe ID: ", 1, Pipe::MaxID);
-    deletePipe(id, pipes);
-}
-
 void deleteCS(const int id, unordered_map<int, CS>& cs)
 {
     if (cs.erase(id) == 0)
         cout << "CS with id " << id << " not found.\n";
     else
         cout << "CS with id " << id << " deleted.\n";
-}
-
-void DeleteCSMenu(unordered_map<int, CS>& cs)
-{
-    cout << "\n";
-    if (cs.empty()) {
-        cout << "There are no Compression stations created.\n";
-        return;
-    }
-
-    int id = inputInt(cin, "Select CS ID: ", 1, CS::MaxID);
-    deleteCS(id, cs);
 }
 
 void saveToFile(const unordered_map<int, Pipe>& pipes, const unordered_map<int, CS>& cs)
@@ -196,6 +147,32 @@ void saveToFile(const unordered_map<int, Pipe>& pipes, const unordered_map<int, 
         fout << s;
 
     cout << "\nWriting to the file " << filename << " is complete.\n\n";
+}
+
+Pipe readPipe(ifstream& fin)
+{
+    string line;
+    if (!getline(fin, line)) throw runtime_error("Unexpected end of file");
+    int id = stoi(line);
+    if (id <= 0) throw runtime_error("Invalid pipe id");
+
+    Pipe p(id);
+    fin >> p;
+    if (!fin) throw runtime_error("Unexpected end of file");
+    return p;
+}
+
+CS readCS(ifstream& fin)
+{
+    string line;
+    if (!getline(fin, line)) throw runtime_error("Unexpected end of file");
+    int id = stoi(line);
+    if (id <= 0) throw runtime_error("Invalid CS id");
+
+    CS s(id);
+    fin >> s;
+    if (!fin) throw runtime_error("Unexpected end of file");
+    return s;
 }
 
 void loadFromFile(unordered_map<int, Pipe>& pipes, unordered_map<int, CS>& cs)
@@ -224,31 +201,17 @@ void loadFromFile(unordered_map<int, Pipe>& pipes, unordered_map<int, CS>& cs)
         {
             if (marker == "P")
             {
-                string line;
-                if (!getline(fin, line)) throw runtime_error("Unexpected end of file");
-                int id = stoi(line);
-                if (id <= 0) throw runtime_error("Invalid pipe id");
-
-                Pipe p(id);
-                fin >> p;
-                if (!fin) throw runtime_error("Unexpected end of file");
-                if (!pipes.emplace(id, p).second)
+                Pipe p = readPipe(fin);
+                if (!pipes.emplace(p.getId(), p).second)
                     throw runtime_error("Duplicate pipe id");
-                maxPipeId = max(maxPipeId, id);
+                maxPipeId = max(maxPipeId, p.getId());
             }
             else if (marker == "C")
             {
-                string line;
-                if (!getline(fin, line)) throw runtime_error("Unexpected end of file");
-                int id = stoi(line);
-                if (id <= 0) throw runtime_error("Invalid CS id");
-
-                CS s(id);  
-                fin >> s;
-                if (!fin) throw runtime_error("Unexpected end of file");
-                if (!cs.emplace(id, s).second)
+                CS s = readCS(fin);
+                if (!cs.emplace(s.getId(), s).second)
                     throw runtime_error("Duplicate CS id");
-                maxCsId = max(maxCsId, id);
+                maxCsId = max(maxCsId, s.getId());
             }
         }
     }
@@ -270,8 +233,8 @@ void loadFromFile(unordered_map<int, Pipe>& pipes, unordered_map<int, CS>& cs)
         cout << "\nReading from the file " << filename << " is complete.\n\n";
     }
 
-    Pipe::MaxID = maxPipeId;
-    CS::MaxID = maxCsId;
+    Pipe::setMaxID(maxPipeId);
+    CS::setMaxID(maxCsId);
 }
 
 template<typename Obj, typename Pred>
@@ -301,8 +264,8 @@ void printFound(const unordered_map<int, Obj>& items, const vector<int>& ids)
 
 double activePercent(const CS& s)
 {
-    if (s.workshops == 0) return 0.0;
-    return 100.0 * s.activeWorkshops / s.workshops;
+    if (s.getWorkshops() == 0) return 0.0;
+    return 100.0 * s.getActiveWorkshops() / s.getWorkshops();
 }
 
 template<typename Obj>
@@ -310,7 +273,7 @@ vector<int> SearchByName(const unordered_map<int, Obj>& items)
 {
     string name = inputName(cin, "Enter the name: ");
     return FindByFilter(items, [&](const Obj& o) {
-        return o.name == name;
+        return o.getName() == name;
         });
 }
 
@@ -318,7 +281,7 @@ vector<int> SearchPipesByRepair(const unordered_map<int, Pipe>& pipes)
 {
     bool repair = inputInt(cin, "Find pipes: 1 - under repair (broken), 0 - working: ", 0, 1) == 1;
     return FindByFilter(pipes, [&](const Pipe& p) {
-        return (!p.working) == repair;
+        return (!p.isWorking()) == repair;
         });
 }
 
@@ -386,7 +349,7 @@ void batchPipes(unordered_map<int, Pipe>& pipes)
     vector<int> ids = find_pipe(pipes);
     if (ids.empty()) return;
 
-    vector<int> targets = chooseTargets(ids, Pipe::MaxID, "Select pipe ID: ");
+    vector<int> targets = chooseTargets(ids, Pipe::getMaxID(), "Select pipe ID: ");
     int cmd = inputEditOrDelete();
     for (int id : targets)
         cmd == 1 ? editPipe(id, pipes) : deletePipe(id, pipes);
@@ -397,7 +360,7 @@ void batchCS(unordered_map<int, CS>& cs)
     vector<int> ids = find_cs(cs);
     if (ids.empty()) return;
 
-    vector<int> targets = chooseTargets(ids, CS::MaxID, "Select CS ID: ");
+    vector<int> targets = chooseTargets(ids, CS::getMaxID(), "Select CS ID: ");
     if (inputEditOrDelete() == 1)
     {
         int percent = inputPercent();

@@ -6,7 +6,7 @@
 class CS
 {
     int id;
-public:
+
     static int MaxID;
 
     std::string name;
@@ -14,11 +14,21 @@ public:
     int activeWorkshops = 0;
     char status = 'a';
 
-    CS();                  
-    explicit CS(int id);   
+public:
+    CS();
+    explicit CS(int id);
 
     int getId() const;
-    void ToggleStatus();
+
+    static int getMaxID();
+    static void setMaxID(int value);
+
+    const std::string& getName() const;
+    int getWorkshops() const;
+    int getActiveWorkshops() const;
+    char getStatus() const;
+
+    void setActiveWorkshops(int value);
 
     friend std::ostream& operator<<(std::ostream& out, const CS& s);
     friend std::istream& operator>>(std::istream& in, CS& s);
