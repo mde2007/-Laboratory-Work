@@ -73,7 +73,7 @@ void viewAll(const unordered_map<int, Pipe>& pipes,
     }
 }
 
-void editPipe(const int id, unordered_map<int, Pipe>& pipes)
+void editPipe(const int id, unordered_map<int, Pipe>& pipes, bool working)
 {
     auto it = pipes.find(id);
     if (it == pipes.end()) {
@@ -88,10 +88,11 @@ void editPipe(const int id, unordered_map<int, Pipe>& pipes)
         << "\ndiameter=" << p.getDiameter()
         << "\nstatus: " << (p.isWorking() ? "working" : "broken") << "\n";
 
-    p.ToggleStatus();
+    if (p.isWorking() != working)
+        p.ToggleStatus();
 
-    cout << "Status changed: \n"
-        << (p.isWorking() ? "working" : "broken") << "\n";
+    cout << "Status set to: "
+        << (p.isWorking() ? "working" : "broken") << "\n\n";
 }
 
 void editCS(const int id, unordered_map<int, CS>& cs, int percent)
@@ -271,9 +272,9 @@ double activePercent(const CS& s)
 template<typename Obj>
 vector<int> SearchByName(const unordered_map<int, Obj>& items)
 {
-    string name = inputName(cin, "Enter the name: ");
+    string name = inputName(cin, "Enter the name (or part of it): ");
     return FindByFilter(items, [&](const Obj& o) {
-        return o.getName() == name;
+        return o.getName().find(name) != string::npos;
         });
 }
 
@@ -288,8 +289,11 @@ vector<int> SearchPipesByRepair(const unordered_map<int, Pipe>& pipes)
 vector<int> SearchCSByActivePercent(const unordered_map<int, CS>& cs)
 {
     int percent = inputInt(cin, "Enter the percent of working workshops (0-100): ", 0, 100);
+    int mode = inputInt(cin, "1 - greater than or equal to, 2 - less than or equal to: ", 1, 2);
+
     return FindByFilter(cs, [&](const CS& s) {
-        return activePercent(s) >= percent;
+        double p = activePercent(s);
+        return (mode == 1) ? (p >= percent) : (p <= percent);
         });
 }
 
@@ -350,9 +354,15 @@ void batchPipes(unordered_map<int, Pipe>& pipes)
     if (ids.empty()) return;
 
     vector<int> targets = chooseTargets(ids, Pipe::getMaxID(), "Select pipe ID: ");
-    int cmd = inputEditOrDelete();
-    for (int id : targets)
-        cmd == 1 ? editPipe(id, pipes) : deletePipe(id, pipes);
+    if (inputEditOrDelete() == 1)
+    {
+        bool working = inputInt(cin, "Select the new status, where 1 - working, 0 - broken: ", 0, 1) == 1;
+        for (int id : targets)
+            editPipe(id, pipes, working);
+    }
+    else
+        for (int id : targets)
+            deletePipe(id, pipes);
 }
 
 void batchCS(unordered_map<int, CS>& cs)
