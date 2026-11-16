@@ -68,6 +68,11 @@ std::ifstream& operator>>(std::ifstream& in, Pipe& p)
 {
     std::string line;
 
+    if (!std::getline(in, p.name)) return in;
+
+    if (!std::getline(in, line)) return in;
+    p.length = std::stod(line);
+
     if (!std::getline(in, line)) return in;
     p.diameter = std::stoi(line);
 
