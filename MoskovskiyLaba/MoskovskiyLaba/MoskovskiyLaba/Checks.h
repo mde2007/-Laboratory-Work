@@ -56,3 +56,15 @@ inline int inputInt(std::istream& in, const std::string& prompt, int lo, int hi)
 }
 
 double inputPositiveDouble(std::istream& in, const std::string& prompt);
+
+inline int inputDiameter(std::istream& in, const std::string& prompt)
+{
+    int d;
+    while (true) {
+        std::cout << prompt;
+        in >> d;
+        if (d == 500 || d == 700 || d == 1000 || d == 1400)
+            return d;
+        std::cout << "Error, allowed diameters : 500, 700, 1000, 1400. Try again.\n";
+    }
+}

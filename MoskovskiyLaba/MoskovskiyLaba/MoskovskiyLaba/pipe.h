@@ -11,8 +11,11 @@ class Pipe
 
     std::string name;
     double length = 0;
-    float  diameter = 0;
+    int diameter = 0;
     bool   working = true;
+
+    int startCS = 0;         
+    int endCS = 0;
 
 public:
     Pipe();
@@ -26,8 +29,14 @@ public:
 
     const std::string& getName() const;
     double getLength() const;
-    float getDiameter() const;
+    int getDiameter() const;
     bool isWorking() const;
+
+    int getStartCS() const;
+    int getEndCS() const;
+    bool isConnected() const;
+    void connect(int from, int to);
+    void disconnect();
 
     friend std::ostream& operator<<(std::ostream& out, const Pipe& p);
     friend std::istream& operator>>(std::istream& in, Pipe& p);
