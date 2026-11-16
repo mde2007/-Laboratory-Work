@@ -17,6 +17,7 @@ void launching()
     cout << "4 - Find object\n";
     cout << "5 - Save to file\n";
     cout << "6 - Download from file\n";
+    cout << "7 - Connect CS with pipe\n";
     cout << "0 - Exit\n";
 }
 
@@ -33,7 +34,7 @@ int main()
     while (true)
     {
         launching();
-        int choice = inputInt(cin, "Enter a number to execute a command: ", 0, 6);
+        int choice = inputInt(cin, "Enter a number to execute a command: ", 0, 7);
 
         switch (choice)
         {
@@ -56,6 +57,9 @@ int main()
             break;
         case 6:
             network.load();
+            break;
+        case 7:
+            network.connect();
             break;
         }
     }

@@ -33,6 +33,9 @@ class GasNetwork
     void batchPipes();
     void batchCS();
 
+    int findFreePipe(int diameter) const;
+    bool checkEnds(int from, int to) const;
+
 public:
     void addPipe();
     void addCS();
@@ -40,4 +43,5 @@ public:
     void findObject();
     void save() const;
     void load();
+    void connect();
 };

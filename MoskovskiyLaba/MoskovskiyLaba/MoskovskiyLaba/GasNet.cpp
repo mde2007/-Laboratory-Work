@@ -97,6 +97,24 @@ void GasNetwork::addPipe()
 {
     Pipe p;
     cin >> p;
+
+    if (stations.size() >= 2)
+    {
+        int from = inputInt(cin, "Enter the id of the entry CS (0 - do not connect): ", 0, CS::getMaxID());
+        if (from != 0)
+        {
+            int to = inputInt(cin, "Enter the id of the exit CS: ", 1, CS::getMaxID());
+            if (checkEnds(from, to))
+                p.connect(from, to);
+            else
+                cout << "The pipe will be created without connection.\n";
+        }
+    }
+    else
+    {
+        cout << "Fewer than 2 CS exist, the pipe is created without connection.\n";
+    }
+
     int id = p.getId();
     pipes.emplace(id, p);
     cout << "Pipe added with id = " << id << "\n";
@@ -381,3 +399,64 @@ void GasNetwork::load()
     Pipe::setMaxID(maxPipeId);
     CS::setMaxID(maxCsId);
 }
+
+bool GasNetwork::checkEnds(int from, int to) const
+{
+    if (!stations.count(from))
+    {
+        cout << "CS with id " << from << " not found.\n";
+        return false;
+    }
+    if (!stations.count(to))
+    {
+        cout << "CS with id " << to << " not found.\n";
+        return false;
+    }
+    if (from == to)
+    {
+        cout << "Entry and exit CS must be different.\n";
+        return false;
+    }
+    return true;
+}
+
+int GasNetwork::findFreePipe(int diameter) const
+{
+    int best = 0;
+    for (const auto& [id, p] : pipes)
+        if (!p.isConnected() && p.getDiameter() == diameter)
+            if (best == 0 || id < best)
+                best = id;
+    return best;
+}
+
+void GasNetwork::connect()
+{
+    cout << "\n";
+    if (stations.size() < 2)
+    {
+        cout << "You need at least 2 Compression stations to connect.\n\n";
+        return;
+    }
+
+    int from = inputInt(cin, "Enter the id of the entry CS: ", 1, CS::getMaxID());
+    int to = inputInt(cin, "Enter the id of the exit CS: ", 1, CS::getMaxID());
+    if (!checkEnds(from, to))
+    {
+        cout << "\n";
+        return;
+    }
+
+    int diameter = inputDiameter(cin, "Enter the pipeline diameter (500, 700, 1000, 1400): ");
+
+    int pipeId = findFreePipe(diameter);
+    if (pipeId == 0)
+    {
+        cout << "No free pipe with diameter " << diameter
+            << ". Add a pipe first (menu 1).\n\n";
+        return;
+    }
+
+    pipes.at(pipeId).connect(from, to);
+    cout << "\nPipe " << pipeId << " connects CS " << from << " -> CS " << to << ".\n\n";
+}   
